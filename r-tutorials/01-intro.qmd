@@ -1,0 +1,143 @@
+---
+title: "First steps in R: Writing and running code"
+author: "Adam Loy for Stat 250"
+engine: knitr
+format: live-html
+webr:
+  packages:
+    - dplyr
+    - palmerpenguins
+    - ggformula
+    - janitor
+---
+
+
+## Overview
+
+In Stat 250 we will use the R statistical programming language to implement the methods we discuss. For many of you, this might be your first time using R, and maybe even the first time you have been required to write code. Today our goal it to learn the basics of writing and running code in R. To do this, we'll run our code in a tutorial webpage. Next class I'll introduce you to the RStudio server.
+
+
+## Example: Palmer's penguins data set
+
+Today we will work with the `palmerpenguins` data set. The data set contains size measurements for three penguin species observed on three islands in the Palmer Archipelago, Antarctica. The data are loaded into R when you load the {palmerpenguins} R package. To load an R package we use the `library` function as shown below. Click "Run code" to load the package.
+
+```{webr}
+library(palmerpenguins) 
+```
+
+Notice that we use parentheses with functions and place the arguments for that function inside those parentheses.
+
+:::{.callout-note}
+You should notice that R did not *appear* to do anything when you ran the above code. That's because everything was done in the background and R will only show you what is requested. So don't panic if you don't see any output!
+:::
+
+
+
+## Getting a glimpse of the data set
+
+Throughout the term I'll refer to small pieces of code as "code chunks." This is both descriptive, and will be what RStudio (our interface) calls them later on. For today, we'll focus on how to write small code chunks to accomplish specific tasks for exploratory data analysis.
+
+For example, we might wish to get an overview of the data set by printing the first few rows via `head()`
+
+```{webr}
+head(penguins)
+```
+
+I prefer to use a different function, `glimpse()`, which is in the {dplyr} package. The below code chunk loads this package and gives a "glimpse" of the `penguins` data set:
+
+```{webr}
+library(dplyr)
+glimpse(penguins)
+```
+
+**Checkpoint questions:**
+
+* How many rows are in the `penguins` data set?
+* How many variables are in the `penguins` data set? List them and identify each as quantitative or categorical. 
+* What does R call a quantitative variable? A categorical variable?
+
+
+
+## Univariate summaries
+
+We often begin exploring a data set using univariate graphics and summary statistics. The fastest way to get started is using the `summary()` function, which returns a brief set of summary statistics for each variable in the data set.
+
+```{webr}
+summary(penguins)
+```
+
+**Checkpoint questions:**
+
+* What summary information is calculated for a categorical variable?
+* What summary information is calculated for a quantitative variable?
+* What do you think R means by `NA's`?
+
+
+### Quantitative variables
+
+R also has built-in functions to compute summary statistics one by one for a specific column. To "extract" a variable from the data set, we use a `$`. For example, we can extract the `bill_length_mm` column and calculate the mean:
+
+```{webr}
+mean(penguins$bill_depth_mm, na.rm = TRUE)
+```
+
+**Checkpoint questions:**
+
+* What happens if you delete `na.rm = TRUE` (and the comma)? Why do you think that is?
+* Other useful summary statistics for quantitative variables include (here `x` denotes a column):
+
+    | Function | Summary statistic|
+    |----|-----------|
+    | `median(x)` | median |
+    | `sd(x)` | standard deviation |
+    | `var(x)` | variance |
+    | `IQR(x)` | interquartile range |
+
+    Calculare the median of `flipper_length_mm` and the variance of `body_mass_g`. Be sure to add `na.rm = TRUE` for each!
+    
+    
+    
+Now that you have explore a couple quantitative variable numerically, let's do so graphically. To create graphics in this course we'll use tools from the {ggformula} R package. All of the functions will begin with `gf_` and have similar syntax. For example, to create a histogram of bill length we can run
+
+```{webr}
+library(ggformula)
+gf_histogram(~bill_length_mm, data = penguins, bins = 25)
+```
+
+Here we use the `~` to tell R the `bill_length_mm` is a variable in the data set. We must also specify `data` and you an adjust the number of `bins`.
+
+Similar syntax is used to create a boxplot:
+
+```{webr}
+gf_boxplot(~bill_length_mm, data = penguins)
+```
+
+
+**Checkpoint questions:**
+
+* Create a histogram of `body_mass_g` and describe what you see.
+* Create a boxplot of `flipper_length_mm` and describe what you see.
+* Change the number of bins for a histogram of `bill_length_mm`. What number of bins seems "about right" in your opinion?
+* You can adjust the axis labels by adding an `xlab` or `ylab` argument. Add `xlab = "Your axis label"` to plots you have created thus far to make them more informative.
+
+
+
+### Categorical variables
+    
+
+For categorical variables, we typically calculate tables of counts or proportions. While counts are given by the `summary()` command, I recommend using the `tabyl()` command from the {janitor} package:
+
+```{webr}
+library(janitor)
+tabyl(penguins, island) #  Pass in the data frame and then the column name to tabulate
+```
+
+
+**Checkpoint questions:**
+
+* Create a table of counts/proportions for the `species` variable.
+* What happens if you specify both `island` and `species` in `tabyl()` (separated by commas of course)?
+
+
+
+## Bivariate summaries

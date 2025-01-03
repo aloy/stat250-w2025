@@ -1,12 +1,10 @@
 ---
 title: "Introduction to Statistical Thought"
 subtitle: "Stat 250: Introduction to Statistical Inference"
-author: "[Click here for PDF version]()"
+author: "[Click here for PDF version](pdfs/01-stat-thought.pdf)"
 format:
   revealjs: 
     theme: [default, slide-styles.scss]
-    width: 1280
-    height: 720
 code-line-numbers: false
 code-annotations: hover
 ---
@@ -14,13 +12,15 @@ code-annotations: hover
 
 ## Three prongs of statistics
 
+:::: {style="font-size: 90%;"}
+
 1. **Design** <br>
-The design of surveys/experiments and collection of data to more efficiently/correctly address scientific questions <br/> <br/>
+The design of surveys/experiments and collection of data to more efficiently/correctly address scientific questions <br/> 
 
 :::{.fragment}
 
 2. **Exploration** <br>
-Understand the major features of and detect patterns in data <br/> <br/>
+Understand the major features of and detect patterns in data <br/> 
 
 :::
 :::{.fragment}
@@ -29,6 +29,7 @@ Understand the major features of and detect patterns in data <br/> <br/>
 Account for randomness, variability, and bias in a sample in order to draw reasonable and correct conclusions about a population
 
 :::
+::::
 
 ## Statistics vs. probability
 
@@ -65,6 +66,8 @@ Gathered intelligence (intercepted messages, interrogated of prisoners, etc.) an
 
 #### Statisticians
 
+::: {style="font-size: 90%;"}
+
 * The Allies had a sample of serial numbers (via capture, photography, etc.), $X_1, X_2, \ldots, X_n$, and there were $N$ produced.
 
 * Allied statisticians needed to devise an **estimator** to obtain $N$
@@ -74,7 +77,7 @@ Gathered intelligence (intercepted messages, interrogated of prisoners, etc.) an
     + June 1940: 169
     + June 1941: 244
     + August 1942: 327
-
+:::
 
 
 
@@ -122,16 +125,17 @@ A statistical model consists of
 
 ## Types of Inference in Stat 250
 
-
-#### Nonparametric
+:::: {style="font-size: 90%;"}
+**Nonparametric** <br>
 
 > The basic idea of nonparametric inference is to use data to infer an unknown quantity while making as few assumptions as possible. Usually, this means using statistical models that are infinite-dimensional.  (Wasserman, 2006)
 
 :::{.fragment}
-#### Parametric
+**Parametric**<br>
 
 > A parametric inference uses models that consist of a set of distributions/densities that can be parameterized by a finite number of parameters.
 :::
+::::
 
 ## Tentative schedule
 

@@ -35,7 +35,7 @@ You should notice that R did not *appear* to do anything when you ran the above 
 
 ## Getting a glimpse of the data set
 
-Throughout the term I'll refer to small pieces of code as "code chunks." This is both descriptive, and will be what RStudio (our interface) calls them later on. For today, we'll focus on how to write small code chunks to accomplish specific tasks for exploratory data analysis.
+Throughout the term I'll refer to small pieces of code as "code chunks." This is both descriptive and will be what RStudio (our interface) calls them later on. For today, we'll focus on how to write small code chunks to accomplish specific tasks for exploratory data analysis.
 
 For example, we might wish to get an overview of the data set by printing the first few rows via `head()`
 
@@ -54,7 +54,7 @@ glimpse(penguins)
 
 * How many rows are in the `penguins` data set?
 * How many variables are in the `penguins` data set? List them and identify each as quantitative or categorical. 
-* What does R call a quantitative variable? A categorical variable?
+* What does R call a quantitative variable? What does it call a categorical variable?
 
 
 
@@ -84,7 +84,7 @@ mean(penguins$bill_depth_mm, na.rm = TRUE)
 **Checkpoint questions:**
 
 * What happens if you delete `na.rm = TRUE` (and the comma)? Why do you think that is?
-* Other useful summary statistics for quantitative variables include (here `x` denotes a column):
+* Other useful summary statistics for quantitative variables include (here `x` denotes a column name):
 
     | Function | Summary statistic|
     |----|-----------|
@@ -93,7 +93,7 @@ mean(penguins$bill_depth_mm, na.rm = TRUE)
     | `var(x)` | variance |
     | `IQR(x)` | interquartile range |
 
-    Calculare the median of `flipper_length_mm` and the variance of `body_mass_g`. Be sure to add `na.rm = TRUE` for each!
+    Calculate the median of `flipper_length_mm` and the variance of `body_mass_g`. Be sure to add `na.rm = TRUE` for each!
     
     
     
@@ -104,19 +104,37 @@ library(ggformula)
 gf_histogram(~bill_length_mm, data = penguins, bins = 25)
 ```
 
-Here we use the `~` to tell R the `bill_length_mm` is a variable in the data set. We must also specify `data` and you an adjust the number of `bins`.
+Here we use the `~` to tell R the `bill_length_mm` is a variable in the data set. We must also specify `data` and adjust the number of `bins` as needed.
 
-Similar syntax is used to create a boxplot:
+Similar syntax is used to create a boxplot
 
 ```{webr}
 gf_boxplot(~bill_length_mm, data = penguins)
 ```
 
 
+or a normal Q-Q plot:
+
+```{webr}
+gf_qq(~bill_length_mm, data = penguins)
+```
+
+To add the reference line to the Q-Q plot, we need to use the `|>` pipe operator. This strings commands together and can be thought of as the phrase "and then." The below code creates a Q-Q plot and then adds the reference line.
+
+```{webr}
+gf_qq(~bill_length_mm, data = penguins) |>
+  gf_qqline()
+```
+
+
+
+
+
 **Checkpoint questions:**
 
 * Create a histogram of `body_mass_g` and describe what you see.
 * Create a boxplot of `flipper_length_mm` and describe what you see.
+* Create a normal Q-Q plot of `bill_depth_mm` and decide whether it appears to be approximately normal.
 * Change the number of bins for a histogram of `bill_length_mm`. What number of bins seems "about right" in your opinion?
 * You can adjust the axis labels by adding an `xlab` or `ylab` argument. Add `xlab = "Your axis label"` to plots you have created thus far to make them more informative.
 
@@ -129,8 +147,10 @@ For categorical variables, we typically calculate tables of counts or proportion
 
 ```{webr}
 library(janitor)
-tabyl(penguins, island) #  Pass in the data frame and then the column name to tabulate
+tabyl(penguins, island)
 ```
+
+The first argument passed to `tabyl()` should be the data frame, the second is the column name to tabulate.
 
 
 **Checkpoint questions:**
@@ -138,6 +158,3 @@ tabyl(penguins, island) #  Pass in the data frame and then the column name to ta
 * Create a table of counts/proportions for the `species` variable.
 * What happens if you specify both `island` and `species` in `tabyl()` (separated by commas of course)?
 
-
-
-## Bivariate summaries

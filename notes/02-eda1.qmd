@@ -1,0 +1,221 @@
+---
+title: "Exploratory Data Analysis"
+subtitle: "Stat 250"
+author: "[Click here for PDF version]()"
+format:
+  revealjs: 
+    theme: [default, slide-styles.scss]
+code-line-numbers: false
+code-annotations: hover
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+knitr::opts_chunk$set(dev = 'svg')
+library(ggformula)
+library(openintro)
+library(patchwork)
+
+library(gridExtra)
+library(tidyverse)
+library(knitr)
+library(mosaic)
+library(kableExtra)
+library(ggExtra)
+
+yt <- 0
+```
+
+
+# Warm up questions
+
+Take a little time to discuss the warm-up questions with your neighbors.
+
+
+## Example
+- An ecologist draws a random sample of 50 organisms and measures the length of a certain feature
+
+- The ecologist is interest to see whether these measures could follow a normal distribution
+
+```{r echo=FALSE, fig.height = 3, fig.width = 4.5, fig.align = "center"}
+set.seed(12)
+heights <- round(rnorm(50, 10, 2), 1)
+gf_histogram(~heights, binwidth = 1, color = "white", xlab = "length (cm)") +
+  theme_minimal()
+```
+
+
+
+## Q-Q plot
+
+- Compare two sets of quantiles to see if the distributions could be the same
+  
+  + sample vs. sample
+  
+  + sample vs. theoretical ({{< fa arrow-left >}} our focus)
+
+- If the two distributions are the same, then the quantiles should roughly agree/align
+
+ 
+---
+
+## Normal Q-Q plot
+
+:::{.columns}
+::::{.column width=50%}
+
+```{r echo=FALSE, fig.height = 4, fig.width=4, out.width = "90%"}
+gf_qq(~heights, xlab = "N(0, 1) quantiles", ylab = "Sample quantiles")  +
+  theme_minimal()
+
+pp_points <- ppoints(length(heights))
+```
+::::
+
+::::{.column width=50%}
+
+1. Sort observed values
+
+2. Decide on what quantiles are in the data set (R does this for us)
+
+    $$`r pp_points[1]`, `r pp_points[2]`, `r pp_points[3]`, \ldots, `r pp_points[50-1]`, `r pp_points[50]`$$
+
+3. Calculate quantiles from $N(0, 1)$
+
+4. Plot ordered pairs: $(x_i, q_{p_i})$
+
+::::
+:::
+
+
+
+## Normal Q-Q plot
+
+:::{.columns}
+::::{.column width=50%}
+```{r echo=FALSE, fig.height = 4, fig.width=4, out.width = "90%"}
+qq1 <- gf_qq(~heights, xlab = "N(0, 1) quantiles", ylab = "Sample quantiles") %>%
+  gf_qqline(~heights) +
+  theme_minimal() 
+ggMarginal(qq1, type="histogram", binwidth = 0.5, alpha = 0.5)
+```
+::::
+::::{.column width=50%}
+::::: {style="font-size: 90%;"}
+- Comparing shapes of the distributions
+
+- Perfect agreement = line
+
+- Deviations from the shape appear as vertical departure from the line
+
+- Minor deviations are not troubling (sampling variability)
+:::::
+::::
+:::
+
+
+
+## Your turn `r (yt <- yt + 1)`
+
+Do you think the sample could arise from a normal distribution?
+
+```{r echo=FALSE, fig.height = 3, fig.width = 6, out.width = "70%", fig.align='center'}
+y1 <- rexp(50, 1/5)
+
+yt1h <- gf_histogram(~y1, binwidth = 1, color = "white", xlab = "Measurement") +
+  theme_minimal()
+
+yt1qq <- gf_qq(~y1, xlab = "N(0, 1) quantiles", ylab = "Sample quantiles") %>%
+  gf_qqline(~y1) +
+  theme_minimal() 
+
+yt1h + yt1qq
+```
+
+
+## Your turn `r (yt <- yt + 1)`
+
+Do you think the sample could arise from a normal distribution?
+
+```{r echo=FALSE, fig.height = 3, fig.width = 6, out.width = "70%", fig.align='center'}
+y2 <- rt(50, df = 2)
+
+yt2h <- gf_histogram(~y2, binwidth = 1, color = "white", xlab = "Measurement") +
+  theme_minimal()
+
+yt2qq <- gf_qq(~y2, xlab = "N(0, 1) quantiles", ylab = "Sample quantiles") %>%
+  gf_qqline(~y2) +
+  theme_minimal() 
+
+yt2h + yt2qq
+```
+
+
+## Small sample sizes are tricky
+
+Here we have three samples of $n=10$ 
+
+```{r echo = FALSE, fig.width=9, fig.height=3, out.width = "100%"}
+seed <- c(1, 2, 99999)
+n1 <- rnorm(10)
+n2 <- rnorm(10)
+n3 <- rnorm(10)
+
+gf_qq(~n1, xlab = "N(0, 1) quantiles", ylab = "Sample quantiles") %>% gf_qqline(~n1) + 
+  gf_qq(~n2, xlab = "N(0, 1) quantiles", ylab = "Sample quantiles") %>% gf_qqline(~n2) +
+  gf_qq(~n3, xlab = "N(0, 1) quantiles", ylab = "Sample quantiles") %>% gf_qqline(~n3)
+```
+
+
+# Intro to R
+
+## Function application syntax
+
+```{r}
+#| eval: false
+#| echo: true
+function_name(arg1, arg2, arg3)
+```
+
+
+## Creating objects
+
+```{r}
+#| eval: false
+#| echo: true
+my_object <- function_name(arg1, arg2, arg3)
+```
+
+## Things to remember
+
+- R is case sensitive
+
+- R only does what you ask
+
+- Always close parentheses
+
+- Separate arguments with commas
+
+
+
+## Your turn
+
+- Work through the EDA in R tutorial with your neighbors
+
+- R has a learning curve, stick with it and ask questions when you're confused!
+
+
+## Tips for EDA
+
+1. Experiment with histogram binwidth or number of bins
+
+1. Bar charts start at zero
+
+1. Use histograms, not pie charts
+
+1. Label your axes, including your units
+
+1. Give context in a title or caption
+
+1. Be able to describe every graph that you use
+

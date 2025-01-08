@@ -1,0 +1,41 @@
+---
+title: "Using R for Homework 1"
+author: "Adam Loy for Stat 250"
+engine: knitr
+format: live-html
+webr:
+  packages:
+    - dplyr
+    - ggformula
+    - janitor
+    - resampledata3
+---
+
+
+## Overview
+
+I am easing you into R in this class, so for homework 1 you can use this browser-based implementation to complete the work. Use the below empty code chunks to write and run the necessary for each exercise. To submit your work, please transcribe the results (this could be rewriting a table or summary statistic, or taking a screenshot of a graphic).
+
+
+
+## Exercise 2.4 (a)
+
+The `FlightDelays` data set is available at: `https://sites.google.com/site/chiharahesterberg/data3/FlightDelays.csv`
+
+To load this data set, fill in the blank (replace the `___`) with the URL in the `read.csv()` command. Then delete the `#` at the beginning of the line to uncomment the command.
+
+Once you have the data loaded, you can run the other commands needed in this chunk.
+
+```{webr}
+# FlightDelays <- read.csv("___")
+
+```
+
+
+
+## Exercise 2.7 (a)-(b)
+
+The `Spruce` data set is available at: `https://sites.google.com/site/chiharahesterberg/data3/Spruce.csv`
+
+
+## Exercise 2.17

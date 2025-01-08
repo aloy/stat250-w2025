@@ -1,6 +1,7 @@
 ---
 title: "Using R for Homework 1"
 author: "Adam Loy for Stat 250"
+date: "January 8, 2025"
 engine: knitr
 format: live-html
 webr:
@@ -14,28 +15,48 @@ webr:
 
 ## Overview
 
+:::{.callout-note}
+It takes a little while (less than 30 seconds) for the webpage to fully load because R packages are being downloaded in the browser. This allows us to only need this webpage to run R, but it does mean you need to be a bit patient.
+:::
+
 I am easing you into R in this class, so for homework 1 you can use this browser-based implementation to complete the work. Use the below empty code chunks to write and run the necessary for each exercise. To submit your work, please transcribe the results (this could be rewriting a table or summary statistic, or taking a screenshot of a graphic).
 
+The data sets used on this homework are available in the {resampledata3} package, so you should load that in the below code chunk, along with the other packages discussed in class:
+
+```{webr}
+# Load the necessary R packages
+```
 
 
 ## Exercise 2.4 (a)
 
-The `FlightDelays` data set is available at: `https://sites.google.com/site/chiharahesterberg/data3/FlightDelays.csv`
-
-To load this data set, fill in the blank (replace the `___`) with the URL in the `read.csv()` command. Then delete the `#` at the beginning of the line to uncomment the command.
-
-Once you have the data loaded, you can run the other commands needed in this chunk.
+Note: The data set is named `FlightDelays`. Once you have the data loaded, you can run the other commands needed in this chunk.
 
 ```{webr}
-# FlightDelays <- read.csv("___")
-
+# Write the code you need here
 ```
 
 
 
 ## Exercise 2.7 (a)-(b)
 
-The `Spruce` data set is available at: `https://sites.google.com/site/chiharahesterberg/data3/Spruce.csv`
+Note: The data set is named `Spruce`.
 
+```{webr}
+# Write the code you need here
+```
 
 ## Exercise 2.17
+
+To draw a random sample from the N(0, 1) distribution, we use the `rnorm()` function:
+
+```{webr}
+n <- 15
+rs <- rnorm(n, mean = 0, sd = 1)
+```
+
+To create the plots, you can omit the `data` argument since `rs` will serve as the column of data and is not contained in a data frame.
+
+```{webr}
+# Write the code you need to create a histogram and normal Q-Q plot here
+```

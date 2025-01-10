@@ -1,0 +1,163 @@
+---
+title: "Exploratory Data Analysis"
+subtitle: "Stat 250"
+author: "[Click here for PDF version](pdfs/02-eda2.pdf)"
+format:
+  revealjs: 
+    theme: [default, slide-styles.scss]
+code-line-numbers: false
+code-annotations: hover
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+knitr::opts_chunk$set(dev = 'svg')
+library(ggformula)
+library(openintro)
+library(patchwork)
+
+library(gridExtra)
+library(tidyverse)
+library(knitr)
+library(mosaic)
+library(kableExtra)
+library(ggExtra)
+
+yt <- 0
+```
+
+
+
+## {background-image="img/02-rmd.png"}
+
+
+## Recommended workflow
+
+::: {style="font-size: 90%;"}
+1. Create an R project to keep your files organized (this creates a new folder)
+ 
+1. Keep all of your data (inputs) in a `data/` folder (for now we'll read from URLs)
+
+1. Download/create an RMarkdown (.Rmd) file to house both your thoughts and your R code; this will keep both your work and your final products in one place
+
+1. While you're writing your code (i.e., drafting your analysis) run the chunks in the console; when you are finished, knit to PDF (or Word)
+:::
+
+:::{.footer}
+Tip: don't use spaces in file names, use underscores or dashes
+:::
+
+
+
+
+
+
+## Why RMarkdown?
+
+* The analysis is self-documenting
+
+* It's easy to extend or refine analyses by copying and modifying code blocks
+
+* The analysis can be disseminated by providing the RMarkdown file and data sources
+
+* The results can also be shared as HTML (fully self contained), PDF, or Word if just a summary of the analysis is needed
+
+:::{.footer}
+From "Connecting data, analysis, and results using a reproducible framework", Mine Çetinkaya-Rundel and Nicholas Horton 
+:::
+
+
+## {background-image="img/02-rmd-1.jpg"}
+
+## {background-image="img/02-rmd-2.jpg"}
+
+## {background-image="img/02-rmd-3.jpg"}
+
+
+
+## Metadata
+
+::: {style="font-size: 90%;"}
+The header stores the necessary metadata for your document
+
+* Always start and end with three hyphens `---`
+
+* Put the text for the title, author, and date in quotes
+
+* Let RStudio take care of the indentation for you
+
+
+  
+```yaml
+---
+title: "My First RMarkdown Document"
+author: "Adam Loy"
+date: "01/10/2025"
+output: pdf_document
+---
+```
+:::
+
+## Code chunks
+
+    `r ''````{r}
+    1 + 2 * 3
+    20:30
+    mean(rnorm(20))
+    ```
+
+::: {style="font-size: 90%;"}
+* Always begin and end with three backticks
+
+* Additional options can be placed inside of the brackets
+
+* The lines wrapped inside the beginning and closing three backticks must be R code that you could run in the R Console.
+
+:::
+
+---
+
+## Headers (titles)
+
+Headers start with hashtags
+
+```md
+# Top-level header 
+
+## A second-level header
+
+### A third-level header
+```
+
+<br>
+
+:::{.fragment}
+
+### Text
+
+Write your thoughts in plain text
+
+:::
+
+## Mathematical expressions
+
+You can write mathematical expressions using [LaTeX](https://en.wikibooks.org/wiki/LaTeX) code
+
+::: {style="font-size: 90%;"}
+`$\alpha + \beta$`
+
+$\alpha + \beta$
+
+`$\bar{X}=\frac{1}{n}\sum_{i=1}^nX_i$`
+
+$\bar{X}=\frac{1}{n}\sum_{i=1}^nX_i$
+
+`$S^2 = \frac{1}{n-1} \sum_{i=1}^n (X_i - \bar{X}_n)^2$`
+
+$S^2 = \frac{1}{n-1} \sum_{i=1}^n (X_i - \bar{X}_n)^2$
+:::
+
+## {background-image="img/02-rmd-4.jpg"}
+
+## {background-image="img/02-rmd-5.jpg"}
+

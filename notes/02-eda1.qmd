@@ -1,7 +1,7 @@
 ---
 title: "Exploratory Data Analysis"
 subtitle: "Stat 250"
-author: "[Click here for PDF version](pdfs/02-eda1.pdf)"
+author: "[Click here for PDF version](pdfs/01-eda1.pdf)"
 format:
   revealjs: 
     theme: [default, slide-styles.scss]

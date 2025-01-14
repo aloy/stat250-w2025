@@ -1,0 +1,450 @@
+---
+title: "More on Permutation tests"
+subtitle: "Stat 250"
+author: "[Click here for PDF version](pdfs/05-permutation-test2.pdf)"
+format:
+  revealjs: 
+    theme: [default, slide-styles.scss]
+code-line-numbers: false
+code-annotations: hover
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+library(ggformula)
+library(openintro)
+library(patchwork)
+library(fivethirtyeight)
+library(dplyr)
+library(tidyr)
+library(fontawesome)
+
+library(gridExtra)
+library(tidyverse)
+library(knitr)
+library(mosaic)
+library(infer)
+library(kableExtra)
+
+library(Sleuth3)
+motivation <- case0101
+
+brake <- readxl::read_excel("../data/brake-reaction-time.xlsx")
+```
+
+
+# Questions?
+
+What questions do you have from last class, including the extra examples?
+
+
+
+# `r fa('r-project')` Implementation
+
+## Data overview
+
+Data frame with 47 rows and two columns
+
+```{r}
+#| echo: true
+dplyr::glimpse(motivation)
+```
+
+## 
+#### 1. Calculate the observed difference in means
+
+:::{style="font-size: 90%;"}
+```{r}
+#| echo: true
+group_means <- mosaic::mean(~Score | Treatment, data = motivation)
+group_means
+```
+
+<br>
+```{r}
+#| echo: true
+observed <- group_means["Intrinsic"] - group_means["Extrinsic"]
+observed
+```
+:::
+
+
+## 
+#### 2. Use a for loop to run the permutations
+
+```{r cache=TRUE}
+#| echo: true
+#| code-line-numbers: "1-5|7-10"
+y <- motivation$Score # vector with response variable
+n <- nrow(motivation) # total sample size
+ngrp1 <- 24           # sample size for group 1
+N <- 10^4 - 1         # number of resamples
+result <- numeric(N)  # place to store results
+
+for(i in 1:N) {
+  index <- sample(n, size = ngrp1, replace = FALSE)
+  result[i] <- mean(y[index]) - mean(y[-index])
+}
+```
+
+:::{.fragment}
+<br>
+`result` is a vector
+```{r}
+#| echo: true
+head(result)
+```
+:::
+
+
+## 
+####  3. Plot the permutation (null) distribution
+
+```{r fig.height=3, fig.height = 5, out.width = "40%"}
+#| echo: true
+gf_histogram(~result, title = "Permutation distribution",
+     xlab = "Difference in means") |>
+  gf_vline(xintercept = ~observed, color = "orange")
+```
+
+
+## 
+####  4. Calculate the p-value
+
+`r fa("exclamation-triangle")` Be sure to **look at the alternative hypothesis** to select the inequality (tail)
+
+```{r}
+#| echo: true
+(sum(result >= observed) + 1) / (N + 1)
+```
+
+:::{.fragment}
+<br>
+To get a two-sided p-value, multiple by 2
+
+```{r}
+#| echo: true
+2 * (sum(result >= observed) + 1) / (N + 1)
+```
+:::
+
+## 
+#### Permutation test for difference in proportions
+
+Example: Hearing loss in U.S. teens, 1988-1994 vs. 2005-06
+
+```{r}
+#| include: false
+hloss06 <- rep(c("yes", "no"), times = c(333, 1771-333))
+hloss94 <- rep(c("yes", "no"), times = c(480, 2928-480))
+hearing_loss <- data.frame(
+  year = rep(c("2005-2006", "1988-1994"), times = c(1771, 2928)),
+  hloss = c(hloss06, hloss94)
+)
+```
+
+```{r}
+#| echo: true
+glimpse(hearing_loss)
+```
+
+
+## 
+#### 1. Calculate the observed difference in means
+
+:::{style="font-size: 90%;"}
+```{r}
+#| echo: true
+group_props <- mosaic::prop(~hloss | year, data = hearing_loss, success = "yes")
+group_props
+```
+
+<br>
+```{r}
+#| echo: true
+observed <- group_props["prop_yes.1988-1994"] - group_props["prop_yes.2005-2006"]
+observed
+```
+:::
+
+## 
+#### 2. Use a for loop to run the permutations
+
+::::{style="font-size: 90%;"}
+```{r cache=TRUE}
+#| echo: true
+#| code-line-numbers: "1-5|7-10"
+y <- hearing_loss$hloss   # vector with response variable
+n <- nrow(hearing_loss)   # total sample size
+ngrp1 <- 2928             # sample size for group 1
+N <- 10^4 - 1             # number of resamples
+result <- numeric(N)      # place to store results
+
+for(i in 1:N) {
+  index <- sample(n, size = ngrp1, replace = FALSE)
+  result[i] <- mean(y[index] == "yes") - mean(y[-index] == "yes")
+}
+```
+
+
+:::{.fragment}
+<br>
+`result` is a vector
+```{r}
+#| echo: true
+head(result)
+```
+:::
+
+::::
+
+
+## 
+####  3. Plot the permutation (null) distribution
+
+```{r fig.height=3, fig.height = 5, out.width = "40%"}
+#| echo: true
+gf_histogram(~result, title = "Permutation distribution",
+     xlab = "Difference in proportions") |>
+  gf_vline(xintercept = ~observed, color = "orange")
+```
+
+
+## 
+####  4. Calculate the p-value
+
+`r fa("exclamation-triangle")` Be sure to **look at the alternative hypothesis** to select the inequality (tail)
+
+```{r}
+#| echo: true
+(sum(result <= observed) + 1) / (N + 1)
+```
+
+:::{.fragment}
+<br>
+To get a two-sided p-value, multiple by 2
+
+```{r}
+#| echo: true
+2 * (sum(result <= observed) + 1) / (N + 1)
+```
+:::
+
+
+## Reproducibility
+
+Every time you run sampling code you will received a different random sample **unless** you set the seed (random number generator state).
+
+:::{.fragment}
+<br>
+
+Add `set.seed()` to the code chunk where you sample (or at the top of an .Rmd file)
+```{r}
+#| echo: true
+set.seed(1234) # Choose some large integer
+```
+:::
+
+# Your turn
+
+Work through the R examples.
+
+
+## Matched pairs
+
+Data are **paired** if the groups being compared are clearly *linked*
+
+- Two measurements on each case
+- Twin studies
+- Each case is matched with a similar case, and one case in each pair is given each treatment
+- Other situations where the data are naturally paired
+
+
+## Your turn
+
+
+Which of the following scenarios should be analyzed as paired data?
+
+1. Students take an MCAT prep course. Their before and after scores are compared.
+
+2. 20 first-year and 20 second-year students in class take a midterm. We compare their scores.
+
+3. A group of freshman are asked about the quality of food on campus. A year later, the same students are asked this question again. Do student's opinions change over time?
+
+##
+####  Is it safe to look at social media while driving?
+
+:::{style="font-size: 90%;"}
+- Previous research on smart phone use while driving has primarily focused on phone calls and texting. 
+
+- Study looked at the effects of different smart phone tasks on car-following performance in a driving simulator. 
+
+- Drivers performed driving only baseline simulation
+
+- Drivers performed other phone tasks: texting, reading Facebook posts, exchanging photos on Snapchat, viewing updates on Instagram
+
+- Brake reaction times (in seconds) recorded
+:::
+
+:::{.footer}
+McNabb & Gray, “Staying Connected on the Road: A Comparison of Different Types of Smart Phone Use in a Driving Simulator,” *PLoS ONE*, 2016
+:::
+
+## Your turn
+
+- Is it safe to look at social media while driving?
+
+- What are logical null and alternative hypotheses for this research question?
+
+## Test statistic
+
+::::{.columns}
+:::{.column width="50%"}
+```{r echo=FALSE, results='asis'}
+brt <- brake %>% select(Subject, Baseline, SnapChat) %>%
+  mutate(Diff = SnapChat - Baseline)
+  
+brt %>%
+  kable(format = "html", digits = 3) %>%
+  column_spec(4, background = "navy", color = "white", bold = TRUE) %>%
+  kable_styling(font_size = 18)
+```
+:::
+:::{.column width="50%"}
+
+- For a matched pairs experiment, look at the differences between responses for each unit (pair)
+
+- Compute a new variable for differences 
+
+- We use the mean difference as our test statistic
+
+:::
+::::
+
+## EDA
+
+::::{.columns}
+:::{.column width="50%"}
+```{r echo=FALSE, fig.height=3, fig.width=3.5, warning=FALSE, fig.align='center', out.width = "100%"}
+gf_histogram(~Diff, data = brt, fill = "navy", color = "navy", alpha = 0.6, bins = 10,
+             xlab = "Diff. in brake time (baseline - SnapChat)") +
+  theme_minimal()
+```
+:::
+:::{.column width="50%"}
+```{r echo=FALSE}
+kable(favstats(~Diff, data = brt)[c("mean", "sd", "n")],
+      row.names = FALSE, digits = 3)
+```
+<br>
+
+```{r echo=FALSE}
+kable(favstats(~Diff, data = brt)[c("min", "Q1", "median", "Q3", "max")], row.names = FALSE, digits = 3)
+```
+:::
+::::
+
+##  Generating the null distribution
+
+::::{.columns}
+:::{.column width="50%"}
+```{r echo=FALSE, results='asis'}
+brt %>%
+  kable(format = "html", digits = 3) %>%
+  column_spec(4, background = "navy", color = "white", bold = TRUE)  %>%
+  kable_styling(font_size = 18)
+```
+:::
+:::{.column width="50%"}
+
+- Can't permute one of the columns and recalculate the difference
+
+- Instead, **randomly select a sign (+/-) for each difference**
+
+- Use the mean difference as the test statistic
+
+:::
+::::
+
+##
+
+![](img/permuation_dsn_paired.png)
+
+## Strength of evidence
+
+```{r include=FALSE, fig.width = 6, fig.height = 4, warning=FALSE, cache=TRUE}
+Diff <- brt$Diff
+observed <- mean(Diff)
+n <- length(Diff)
+N <- 10^4-1
+
+set.seed(120)
+
+for (i in 1:N){
+   swap <- sample(c(-1,1), n, replace = TRUE)
+   result[i] <- mean(swap * Diff)
+}
+
+gf_histogram(~result, xlab = "Mean difference", 
+             title = "Permutation distribution",
+             subtitle = "Assuming no difference, based on 9,999 trials") %>%
+  gf_vline(xintercept = observed, color = "red") +
+  theme_minimal() +
+  theme(panel.grid.minor.x = element_blank(),
+        panel.grid.major.x = element_blank())
+
+ggsave(filename = "img/permuation_dsn_paired.png", height = 4, width = 6)
+```
+
+
+
+- `r sum(result >= observed)` simulated test statistics exceed the observed
+
+- 9999 total statistics are in the null distribution
+
+- What's the _p_-value?
+
+- Is there a statistical discernible difference in braking time?
+
+
+## `r fa('r-project')` Implementation
+
+::::{style="font-size: 90%;"}
+Data frame with 18 rows and 6 columns
+
+```{r}
+#| echo: true
+glimpse(brake)
+```
+
+:::{.fragment}
+<br>
+Add a ` Diff` column
+```{r}
+#| echo: true
+brake <- mutate(brake, Diff = Baseline - SnapChat)
+```
+:::
+
+::::
+
+## `r fa('r-project')` Implementation
+
+
+```{r}
+#| echo: true
+#| code-line-numbers: "1-7|9-12"
+Diff <- brake$Diff      # vector of differences
+observed <- mean(Diff)  # observed test stat 
+n <- length(Diff)       # sample size
+N <- 10^4 - 1           # no. of permutation resamples
+
+set.seed(120)           # set seed for reproducibility
+result <- numeric(N)    # place to store the results
+
+for (i in 1:N){
+   swap <- sample(c(-1,1), n, replace = TRUE)
+   result[i] <- mean(swap * Diff)
+}
+```
+

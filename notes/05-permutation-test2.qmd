@@ -53,7 +53,7 @@ dplyr::glimpse(motivation)
 ## 
 #### 1. Calculate the observed difference in means
 
-:::{style="font-size: 90%;"}
+:::{style="font-size: 80%;"}
 ```{r}
 #| echo: true
 group_means <- mosaic::mean(~Score | Treatment, data = motivation)
@@ -152,7 +152,7 @@ glimpse(hearing_loss)
 ## 
 #### 1. Calculate the observed difference in means
 
-:::{style="font-size: 90%;"}
+:::{style="font-size: 70%;"}
 ```{r}
 #| echo: true
 group_props <- mosaic::prop(~hloss | year, data = hearing_loss, success = "yes")
@@ -430,7 +430,7 @@ brake <- mutate(brake, Diff = Baseline - SnapChat)
 
 ## `r fa('r-project')` Implementation
 
-
+::::{style="font-size: 90%;"}
 ```{r}
 #| echo: true
 #| code-line-numbers: "1-7|9-12"
@@ -447,4 +447,4 @@ for (i in 1:N){
    result[i] <- mean(swap * Diff)
 }
 ```
-
+::::

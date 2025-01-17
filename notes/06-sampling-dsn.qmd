@@ -1,0 +1,331 @@
+---
+title: "Sampling Distributions"
+subtitle: "Stat 250"
+author: "[Click here for PDF version](pdfs/06-sampling-dsn.pdf)"
+format:
+  revealjs: 
+    theme: [default, slide-styles.scss]
+code-line-numbers: false
+code-annotations: hover
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+library(ggformula)
+library(openintro)
+library(patchwork)
+library(fivethirtyeight)
+library(dplyr)
+library(tidyr)
+library(fontawesome)
+
+library(gridExtra)
+library(tidyverse)
+library(knitr)
+library(mosaic)
+library(infer)
+library(kableExtra)
+
+library(Sleuth3)
+motivation <- case0101
+
+brake <- readxl::read_excel("../data/brake-reaction-time.xlsx")
+```
+
+## Roadmap
+
+:::{style="font-size: 80%;"}
+Inferential statistics relies on understanding the distribution of the statistic of interest
+
+1. Permutation tests: estimated the distribution of the test statistic by making H<sub>0</sub> true and then using permutation resampling (Chapter 3)
+
+2. Estimation: estimate the distribution of a statistic without assuming a specific parameter value
+
+  - Appeal to probability (Chapter 4)
+  
+  - Simulate the sampling process from the population (Chapter 4)
+  
+  - Simulate the process using *bootstrap resampling* (Chapter 5)
+:::
+  
+
+## Example
+
+Let $T = \displaystyle \sum_{i=1}^n X_i$ where $X_i \overset{\rm iid}{\sim} {\rm Exp}(\lambda)$. Find the sampling distribution of $T$.
+
+Recall: 
+
+- PDF of $X \sim {\rm Exp}(\lambda)$: $f(x) = \lambda e^{-\lambda x}, x\ge 0$
+
+- Moment generating function: $M_X(t) = \dfrac{\lambda}{\lambda - t}$
+
+
+
+## Example
+
+Let $X_1, X_2, \ldots, X_n$ be i.i.d. ${\rm Exp}(\lambda)$ with PDF $f(x) = \lambda e^{-\lambda}, \lambda>0, x>0$.
+
+Find the PDF of $X_{\rm min} = \min(X_1, X_2, \ldots, X_n)$.
+
+
+:::{.footer}
+Exercise 4.30
+:::
+
+
+
+## Simulation example
+
+Let $T = \text{median} \{X_1, X_2, \ldots, X_{10} \}$ where $X_i \overset{iid}{\sim} \text{Beta}(5,2)$.
+
+::::{.columns}
+:::{.column width="55%"}
+**Beta PDF**
+
+$f(x) = \dfrac{\Gamma(\alpha + \beta)}{\Gamma(\alpha) \Gamma(\beta)} x^{\alpha-1} (1-x)^{\beta-1}$
+
+$0 \le x \le 1; \alpha >0, \beta >0$
+:::
+:::{.column width="45%"}
+<br>
+```{r, fig.height = 2.5, fig.width = 4, out.width="100%", echo=FALSE}
+gf_function(dbeta, args = list(shape1 = 5, shape2 = 2), xlim = c(0, 1)) +
+  labs(y = "f(x)") +
+  theme_classic()
+```
+:::
+::::
+
+
+## Simulation example
+
+- Draw 10,000 samples of size $n=10$ from Beta(5, 2)
+
+- Calculate the median for each simulated sample
+
+```{r echo=FALSE, warning=FALSE, fig.height = 2.5, fig.width = 4, out.width="55%", fig.align='center'}
+set.seed(492017) # for reproducibility
+
+draws <- replicate(n = 10000, 
+                   rbeta(n = 10, shape1 = 5, shape2 = 2))
+
+medians <- apply(draws, 2, median)
+
+gf_dhistogram(~medians) %>%
+  gf_dens(~medians, color = "blue", size = 1) +
+  theme_classic()
+```
+
+
+## Simulation example
+
+```{r}
+#| echo: true 
+# Set seed for reproducibility
+set.seed(492017)
+
+N <- 10^4
+medians <- numeric(N)
+
+for(i in seq_len(N)) {
+  # Draw sample of size 10 from Beta(5, 2)
+  draws <- rbeta(n = 10, shape1 = 5, shape2 = 2)
+  
+  # Calculate + store the median
+  medians[i] <- median(draws)
+}
+
+# medians is a vector of length 10000
+```
+
+
+## Simulation example
+
+We can calculate the mean, standard error, and probabilities from simulations
+
+```{r collapse=FALSE, collapse=TRUE}
+#| echo: true
+# Mean of sampling distribution
+mean(medians)
+
+# Standard error of sampling distribution
+sd(medians)
+
+# Probability of an event from sampling distribution
+mean(medians <= 0.6)
+```
+
+
+## Central Limit Theorem
+
+```{css}
+
+@media (min-width: 30em) {
+
+  .panel-tabset {
+  	display: grid;
+  	grid-gap: 2em;
+  	grid-template-columns: 25% 75%;
+  }
+  
+  .panel-tabset-tabby {
+    border-bottom: none !important;
+  	border-right: 1px solid #bbb; 
+  }
+  
+  .panel-tabset [role=tab][aria-selected=true] {
+    background-color: transparent;
+    border: 1px solid #bbb !important;
+  }
+  
+  h3 {
+  	margin-top: 0;
+  }
+  
+}
+
+```
+
+
+Let $X_1, \ldots, X_n$ be i.i.d. samples from a $\chi^2_3$ distribution.
+
+```{r include=FALSE, cache=TRUE}
+chisq_dsn <- data.frame(n10 = apply(replicate(n = 10000, rchisq(n = 10, df = 3)), 2, mean),
+                        n20 = apply(replicate(n = 10000, rchisq(n = 20, df = 3)), 2, mean),
+                        n40 = apply(replicate(n = 10000, rchisq(n = 40, df = 3)), 2, mean),
+                        n80 = apply(replicate(n = 10000, rchisq(n = 80, df = 3)), 2, mean))
+
+chisq_tidy <- gather(chisq_dsn, key = n, value = means)
+chisq_tidy$n <- factor(chisq_tidy$n, labels = c("n = 10", "n = 20", "n = 40", "n = 80"))
+chisq_tidy <- split(chisq_tidy, f = chisq_tidy$n)
+```
+
+
+::: {.panel-tabset}
+
+## Population
+
+```{r pop, echo=FALSE, fig.align='center', fig.height=3.5, fig.width=4, message=FALSE, warning=FALSE, out.width="70%"}
+
+x <- rchisq(10000, df = 3)
+gf_dhistogram(~x, bins = 80, xlab = expression(x[i])) %>%
+  gf_dens(~x, color = "blue", size = 1) +
+  xlim(0, 8) +
+  theme_minimal() 
+  
+```
+
+## n = 10
+```{r n10, echo=FALSE, message=FALSE, warning=FALSE, fig.height = 3.5, fig.width = 4, fig.align='center', out.width = "70%"}
+
+gf_dhistogram(~means , data = chisq_tidy[[1]], bins = 80) %>%
+  gf_dens(color = "blue", size = 1) +
+  xlim(0, 8) +
+  theme_minimal() 
+  
+```
+
+## n = 20
+```{r n20, echo=FALSE, message=FALSE, warning=FALSE, fig.height = 3.5, fig.width = 4, fig.align='center', out.width = "70%"} 
+
+gf_dhistogram(~means , data = chisq_tidy[[2]], bins = 80)  %>%
+  gf_dens(color = "blue", size = 1) +
+    xlim(0, 8) +
+  theme_minimal() 
+
+```
+
+
+## n = 40
+```{r n40, echo=FALSE, message=FALSE, warning=FALSE, fig.height = 3.5, fig.width = 4, fig.align='center', out.width = "70%"} 
+
+gf_dhistogram(~means , data = chisq_tidy[[3]], bins = 80)  %>%
+  gf_dens(color = "blue", size = 1) +
+    xlim(0, 8) +
+  theme_minimal() 
+
+```
+
+
+## n = 80
+```{r n80, echo=FALSE, message=FALSE, warning=FALSE, fig.height = 3.5, fig.width = 4, fig.align='center', out.width = "70%"} 
+
+gf_dhistogram(~means , data = chisq_tidy[[4]], bins = 80)  %>%
+  gf_dens(color = "blue", size = 1) +
+    xlim(0, 8) +
+  theme_minimal() 
+
+```
+:::
+
+
+## Continuity correction
+
+Let $X_1, \ldots, X_n$ be i.i.d. samples from a ${\rm Bin}(n=10, p=0.75)$ distribution.
+
+
+```{r include=FALSE, fig.width=5, fig.height=7}
+binom_dsn <- data.frame(n10 = apply(replicate(n = 10000, rbinom(n = 10, size = 10, p = 0.75)), 2, mean),
+                        n20 = apply(replicate(n = 10000, rbinom(n = 20, size = 10, p = 0.75)), 2, mean),
+                        n40 = apply(replicate(n = 10000, rbinom(n = 40, size = 10, p = 0.75)), 2, mean),
+                        n80 = apply(replicate(n = 10000, rbinom(n = 80, size = 10, p = 0.75)), 2, mean))
+
+
+binom_tidy <- gather(binom_dsn, key = n, value = means)
+binom_tidy$n <- factor(binom_tidy$n, labels = c("n = 10", "n = 20", "n = 40", "n = 80"))
+binom_tidy <- split(binom_tidy, f = binom_tidy$n)
+```
+
+
+::: {.panel-tabset}
+
+## Population
+
+```{r pop2, echo=FALSE, message=FALSE, warning=FALSE, fig.height = 3.5, fig.width = 4, fig.align='center', out.width = "70%"}
+
+x2 <- rbinom(10000, size = 10, p = 0.75)
+gf_histogram(~x2, binwidth = .05, xlab = expression(x[i])) +
+  # gf_dens(~x2, color = "blue", size = 1) +
+  theme_minimal() 
+  
+```
+
+## n = 10
+```{r , echo=FALSE, message=FALSE, warning=FALSE, fig.height = 3.5, fig.width = 4, fig.align='center', out.width = "70%"}
+
+gf_dhistogram(~means , data = binom_tidy[[1]],  binwidth = .05) %>%
+  gf_dens(color = "blue", size = 1) +
+  xlim(5.5, 9.5) +
+  theme_minimal() 
+  
+```
+
+## n = 20
+```{r , echo=FALSE, message=FALSE, warning=FALSE, fig.height = 3.5, fig.width = 4, fig.align='center', out.width = "70%"} 
+
+gf_dhistogram(~means , data = binom_tidy[[2]],  binwidth = .05) %>%
+  gf_dens(color = "blue", size = 1) +
+  xlim(5.5, 9.5) +
+  theme_minimal() 
+
+```
+
+## n = 40
+```{r , echo=FALSE, message=FALSE, warning=FALSE, fig.height = 3.5, fig.width = 4, fig.align='center', out.width = "70%"} 
+
+gf_dhistogram(~means , data = binom_tidy[[3]],  binwidth = .05) %>%
+  gf_dens(color = "blue", size = 1) +
+  xlim(5.5, 9.5) +
+  theme_minimal() 
+
+```
+
+## n = 80
+```{r , echo=FALSE, message=FALSE, warning=FALSE, fig.height = 3.5, fig.width = 4, fig.align='center', out.width = "70%"} 
+
+gf_dhistogram(~means , data = binom_tidy[[4]],  binwidth = .05) %>%
+  gf_dens(color = "blue", size = 1) +
+  xlim(5.5, 9.5) +
+  theme_minimal() 
+
+```

@@ -26,6 +26,7 @@ library(mosaic)
 library(kableExtra)
 library(readxl)
 library(palmerpenguins)
+library(gt)
 
 gentoo <- filter(penguins, species == "Gentoo")
 ```
@@ -198,7 +199,10 @@ gf_histogram(~sample_data, binwidth = 0.5, color = "gray30", xlab = "x") +
 
 
 ```{r echo=FALSE}
-favstats(~sample_data)[,-9] %>% kable(digits = 2)
+favstats(~sample_data)[,-9] %>% 
+  gt() |>
+  fmt_number(decimals = 3) |>
+  tab_options(table.font.size = 24)
 ```
 
 
@@ -227,7 +231,10 @@ gf_histogram(~boot_dsn, bins = 30, xlim = range(boot_dsn),
 
 
 ```{r echo=FALSE}
-favstats(~boot_dsn)[,-9] %>% kable(digits = 2)
+favstats(~boot_dsn)[,-9] %>% 
+  gt() |>
+  fmt_number(decimals = 3) |>
+  tab_options(table.font.size = 24)
 ```
 
 
@@ -249,7 +256,10 @@ gf_histogram(~sampling_dsn, bins = 30, xlim = range(boot_dsn),
 
 
 ```{r echo=FALSE}
-favstats(~sampling_dsn)[,-9] %>% kable(digits = 2)
+favstats(~sampling_dsn)[,-9] %>% 
+  gt() |>
+  fmt_number(decimals = 3) |>
+  tab_options(table.font.size = 24)
 ```
 
 

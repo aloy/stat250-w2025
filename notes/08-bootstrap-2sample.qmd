@@ -152,6 +152,7 @@ Interpretation:
 
 ## Ratio of means
 
+:::{style="font-size: 90%;"}
 ```{r}
 N <- 10^4
 
@@ -162,6 +163,7 @@ for (i in 1:N) {
   ratio_means[i] <- mean(boot_private) / mean(boot_public) 
 }
 ```
+:::
 
 ```{r fig.height = 2.5, fig.width = 5, echo=FALSE}
 gf_histogram(~ratio_means, color = "gray30", bins = 50, 
@@ -172,7 +174,7 @@ gf_histogram(~ratio_means, color = "gray30", bins = 50,
 
 
 ## Difference of medians
-
+:::{style="font-size: 90%;"}
 ```{r}
 N <- 10^4
 
@@ -183,6 +185,7 @@ for (i in 1:N) {
   diff_medians[i] <- median(boot_private) - median(boot_public)
 }
 ```
+:::
 
 ```{r fig.height = 2.5, fig.width = 5, echo=FALSE}
 gf_histogram(~diff_medians, color = "gray30", bins = 60,
@@ -226,13 +229,13 @@ gf_histogram(~medians, color = "gray30", bins = 50,
 ```
 
 ## Cautions
-
+:::{style="font-size: 90%;"}
 - Bootstrap often provides a poor approximation to the sampling distribution of medians and other quantiles
 
 -   When $|{\rm Bias} / {\rm Boot\ SE}| > 0.02$ there could be substantial impact on accuracy of confidence intervals, so reflect on setting and may need to consider other approaches to construct CIs
 
 - Bootstrapping does not overcome the issue of small sample sizes
-
+:::
 
 
 
@@ -327,7 +330,7 @@ We are 89% confident that the mean difference in reaction times is between `r ro
 
 ## `r fa("r-project")` implementation
 
-
+:::{style="font-size: 90%;"}
 ```{r}
 brake <- brake |> select(Subject, Baseline, SnapChat) |>
   mutate(Diff = SnapChat - Baseline)
@@ -343,4 +346,4 @@ for(i in 1:N) {
 
 quants <- quantile(mean_diffs, probs = c(0.045, 0.955))
 ```
-
+:::

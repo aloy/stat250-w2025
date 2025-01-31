@@ -1,0 +1,68 @@
+---
+title: "Maximum likelihood estimation"
+subtitle: "Stat 250"
+author: "[Click here for PDF version](pdfs/09-mle.pdf)"
+format:
+  revealjs: 
+    theme: [default, slide-styles.scss]
+code-line-numbers: false
+code-annotations: hover
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, dev = "svg")
+options(scipen=1, digits=3)
+library(tidyverse)
+library(ggformula)
+library(fontawesome)
+```
+
+
+## Joint probability, with a twist
+
+$P(X_1 = 3, X_2 = 5, X_3 = 7) = (1-p)^{12} p^3, \quad 0 < p < 1$
+
+```{r echo=FALSE, fig.height = 2.5, fig.width=4, fig.align='center', out.width="60%"}
+gf_fun((1-x)^12 * x^3 ~ x, xlim = c(0, 1)) +
+  # gf_vline(xintercept = 1/5) +
+  labs(x = "p", y = "Joint probability") +
+  theme_classic()
+```
+
+
+## Your turn
+
+1. Let $Y_1, \ldots, Y_n$ be i.i.d. draws from a Poisson($\lambda$) distribution. Find the maximum likelihood estimator for $\lambda$.
+
+2. Let $X_1, \ldots, X_n$ be a random sample (that is, i.i.d. draws) from a distribution with PDF 
+$$f(x | \theta) = (\theta + 1) x^{\theta}, \quad 0 \le x \le 1.$$
+    Find the maximum likelihood estimator for a random sample of size $n$.
+
+## Problematic case
+
+::::{.columns}
+:::{.column width="60%"}
+
+Suppose $X_1 = X_2 = X_3 = 1$, then $L(p) = p^3,\ 0<p<1$.
+
+<br>
+
+```{r echo=FALSE, fig.height = 2.5, fig.width=4, fig.align='center', out.width="90%"}
+gf_fun(x^3 ~ x, xlim = c(0, 1)) +
+  # gf_vline(xintercept = 1/5) +
+  labs(x = "p", y = "L(p)") +
+  theme_classic()
+```
+:::
+:::{.column width="40%"}
+$L(p)$ is a big as possible when $p$ is as large as possible
+
+But $p < 1$, so $p$ can get arbitrarily close to 1, but can't reach it
+
+$\Longrightarrow$ MLE does not exist!
+:::
+::::
+
+
+

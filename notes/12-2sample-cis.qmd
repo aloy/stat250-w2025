@@ -1,0 +1,190 @@
+---
+title: "Two-Sample Confidence Intervals"
+subtitle: "Stat 250"
+author: "[Click here for PDF version](pdfs/12-2sample-cis.pdf)"
+format:
+  revealjs: 
+    theme: [default, slide-styles.scss]
+code-line-numbers: false
+code-annotations: hover
+---
+
+```{r setup, include=FALSE}
+library(ggformula)
+library(openintro)
+library(patchwork)
+library(fontawesome)
+library(ggthemes)
+library(readxl)
+
+library(tidyverse)
+library(knitr)
+library(mosaic)
+library(palmerpenguins)
+
+library(countdown)
+library(ggthemes)
+
+library(gt)
+
+gentoo <- filter(penguins, species == "Gentoo")
+brake <- read_excel("../data/brake-reaction-time.xlsx")
+
+```
+
+
+## Bill lengths by species
+
+```{r echo=FALSE, fig.height = 2.5, fig.width = 4, fig.align='center', out.width = "60%", warning=FALSE}
+gf_boxplot(bill_length_mm ~ species, data = penguins, fill = ~species, ylab = "Bill length (mm)", alpha = 0.5) +
+  theme_light() +
+  theme(legend.position = "none") +
+  scale_fill_colorblind() 
+```
+
+
+```{r echo=FALSE}
+favstats(bill_length_mm ~ species, data = penguins) %>% 
+  gt() %>%
+  fmt_number(columns = min:sd, decimals  = 2) |>
+  tab_options(table.font.size = 24)
+```
+
+## Review: Pivotal quantity
+
+A statistic that depends on the random sample, $X_1, \ldots, X_n$, and the parameter, $\theta$, but whose distribution <ins>does not</ins> depend on $\theta$.
+
+
+## Your turn
+
+Let $X_1,\ldots, X_n \overset{\text{iid}}{\sim} N( \mu_1, \sigma^2_1)$ and $Y_1,\ldots, Y_m \overset{\text{iid}}{\sim} N( \mu_2, \sigma^2_2)$. $X_i$ and $Y_j$ are independent.
+
+1. Find $E(\bar{X}_n - \bar{Y}_m)$
+
+2. Find $Var(\bar{X}_n - \bar{Y}_m)$
+
+3. What distribution will does $Z$ have?
+
+$$Z = \frac{(\bar{X}_n - \bar{Y}_m) - E(\bar{X}_n - \bar{Y}_m)}{\displaystyle  SD(\bar{X}_n - \bar{Y}_m)}$$
+    
+4. Is $Z$ a pivotal quantity?
+
+
+## Your turn
+
+Calculate and interpret a 90% confidence interval for the difference in mean bill length between Gentoo and Chinstrap penguins.
+
+
+```{r echo=FALSE}
+
+favstats(bill_length_mm ~ species, data = penguins) %>%   gt() %>%
+  fmt_number(columns = min:sd, decimals  = 2) |>
+  tab_options(table.font.size = 30)
+```
+
+## Underlying validity conditions
+
+- Each random sample is taken from a normal population distribution
+
+- The random samples are independent
+
+:::{.fragment}
+
+**Ask Yourself...**
+
+- Are the observations independent?
+
+- Are the samples of observations independent?
+
+- Are the observations approximately normal?
+:::
+
+
+## Checking conditions
+
+- Are the penguins independent within the species?
+
+- Are the species independent?
+
+- Are the bill lengths for each species approximately normal?
+
+```{r echo=FALSE, fig.height = 2.5, fig.width= 7.75, out.width = "95%", warning=FALSE, fig.align='center'}
+gf_qq(~bill_length_mm | species, data = penguins, color = ~species, alpha = 0.6) %>%
+  gf_qqline() +
+  theme_classic() +
+  theme(legend.position = "none") +
+  scale_color_colorblind()
+```
+
+
+
+## Robustness two-sample $t$
+
+:::{style="font-size: 85%;"}
+- If the population distribution is roughly symmetric and unimodal, then the procedure works well for sample sizes of at least 10–15 (just a rough guide)
+
+- If the two population distributions have the same shape and the sample sizes are too different, skewness isn't a problem
+
+- t-procedure is in trouble if the two population distributions have very different shapes (but would we even want to compare means then?)
+
+- t-procedures are not resistant to outliers
+
+- If observations are not independent, the results can be misleading
+:::
+
+
+# Revisiting matched pairs
+
+
+## Is it safe to look at social media while driving?
+
+:::{style="font-size: 85%;"}
+- Previous research on smart phone use while driving has primarily focused on phone calls and texting. 
+
+- Study looked at the effects of different smart phone tasks on car-following performance in a driving simulator. 
+
+- Drivers performed driving only baseline simulation
+
+- Drivers performed other phone tasks: texting, reading Facebook posts, exchanging photos on Snapchat, viewing updates on Instagram
+
+- Brake reaction times (in seconds) recorded
+:::
+
+:::{.footer}
+McNabb & Gray, “Staying Connected on the Road: A Comparison of Different Types of Smart Phone Use in a Driving Simulator,” *PLoS ONE*, 2016
+:::
+
+
+## CIs for matched pairs data
+
+:::{style="font-size: 85%;"}
+- For a matched pairs experiment, look at the differences between responses for each unit (pair)
+
+- Compute a new variable for differences, then use a one-sample $t$ procedure
+:::
+
+```{r echo=FALSE}
+brake |> head(8) |> gt() %>%
+  fmt_number(columns = -1, decimals  = 3) |>
+  tab_options(table.font.size = 24) |>
+   tab_source_note(
+    source_note = "And so on for 10 more rows..."
+  )
+```
+
+
+
+## CIs for matched pairs data
+
+Summary statistics for `Facebook - Baseline` brake reaction times
+
+
+```{r echo=FALSE}
+diff <- brake$Facebook - brake$Baseline
+favstats(~diff) %>%  gt() %>%
+  fmt_number(columns = min:sd, decimals  = 2) |>
+  tab_options(table.font.size = 30)
+```
+
+
+Calculate a 92% confidence interval for the mean difference in reaction times.

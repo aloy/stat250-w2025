@@ -1,0 +1,158 @@
+---
+title: "Other Confidence Intervals"
+subtitle: "Stat 250"
+author: "[Click here for PDF version](pdfs/13-other-cis.pdf)"
+format:
+  revealjs: 
+    theme: [default, slide-styles.scss]
+code-line-numbers: false
+code-annotations: hover
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+knitr::opts_chunk$set(dev = 'svg')
+library(ggformula)
+library(openintro)
+library(patchwork)
+library(fontawesome)
+library(ggthemes)
+library(readxl)
+library(patchwork)
+
+library(tidyverse)
+library(knitr)
+library(mosaic)
+library(palmerpenguins)
+
+library(countdown)
+library(ggthemes)
+
+library(gt)
+
+survey <- read.csv("https://aloy.rbind.io/data/survey2022.csv")
+
+
+gentoo <- filter(penguins, species == "Gentoo")
+brake <- read_excel("../data/brake-reaction-time.xlsx")
+
+```
+
+
+## Your turn
+
+Let $X \sim \text{Gamma}(2, \lambda)$. It is a fact that $2 \lambda X$ has a chi-square distribution with 4 degrees of freedom. Use this fact to find a 95% confidence interval for $\lambda$ via the pivotal method. 
+
+
+
+
+
+## One-sided confidence intervals
+
+- So far, all of our CIs were two-sided intervals of the form: $P(L \le \theta \le U) = 1-\alpha$
+
+- When we only care about the lower or upper bound, then a one-sided interval is required
+
+**Lower confidence bound**
+
+Found via $P(L \le \theta)=1-\alpha$
+
+**Upper confidence bound**
+
+Found via $P(\theta \le U)=1-\alpha$
+
+
+
+## Example 
+:::{style="font-size: 88%;"}
+- Do college students sleep < 8 hours per night?
+
+- Average hours of sleep on weekdays collected for random sample of students from one college
+
+- Find a 95% lower confidence bound for the average hours of sleep on weekdays for students at this college
+:::
+
+::::{.columns}
+:::{.column width="50%"}
+
+```{r echo=FALSE, fig.height = 2.5, fig.width = 4, message=FALSE, fig.align='center', out.width = "95%"}
+data("SleepStudy", package = "Lock5Data")
+ggplot(data = SleepStudy) +
+  geom_histogram(mapping = aes(x = WeekdaySleep)) +
+  labs(x = "Weekday sleep (in hours)")
+```
+:::
+
+
+:::{.column width="50%"}
+<br>
+
+
+```{r results='asis', echo=FALSE}
+gt(mosaic::favstats(~WeekdaySleep, data = SleepStudy)[,-9]) %>%
+  fmt_number(columns = min:sd, decimals  = 2) |>
+  tab_options(table.font.size = 22)
+```
+:::
+::::
+
+
+## Score intervals for proportions
+
+:::{style="font-size: 90%;"}
+A Gallup poll surveyed 3,731 randomly sampled US in April 2021, asking how they felt about requiring proof of COVID-19 vaccination for travel by airplane. The poll found that 57% said they would favor it.
+
+
+Let $X =$ number of respondents in favor of proof of vaccine
+
+Assume that $X \sim \text{Binom}(n,p)$
+
+$\Longrightarrow \widehat{p} = X/n$ is an unbiased estimator of $p$
+
+$\Longrightarrow$ For large $n$, $\widehat{p} \overset{\cdot}{\sim} N \left(p, \frac{p(1-p)}{n}\right)$
+:::
+
+## Score intervals for proportions
+
+:::{style="font-size: 90%;"}
+For large $n$, $Z = (\widehat{p}-p) / \sqrt{\frac{p(1-p)}{n}} \overset{\cdot}{\sim}N(0,1)$
+
+<br>
+
+Using the pivotal method: 
+
+$P\left(-q \le \frac{\widehat{p}-p}{\sqrt{\frac{p(1-p)}{n}}} \le q \right) = 1-\alpha$, <br>
+
+$\quad q = 1-\alpha/2$ quantile from $N(0,1)$
+
+Now solve for $p$ (you'll need to remember your quadratic formula!)
+:::
+
+## Score intervals for proportions
+
+
+
+$L = \dfrac{\widehat{p} + q^2/(2n) - q \sqrt{\widehat{p}(1-\widehat{p})/n + q^2/(4n^2)}}{1 + q^2/n}$
+
+$U = \dfrac{\widehat{p} + q^2/(2n) + q \sqrt{\widehat{p}(1-\widehat{p})/n + q^2/(4n^2)}}{1 + q^2/n}$
+
+
+:::{.aside}
+We'll use R to implement this!
+:::
+
+
+
+## Example
+:::{style="font-size: 90%;"}
+- A Gallup poll surveyed 3,731 randomly sampled US in April 2021, asking how they felt about requiring proof of COVID-19 vaccination for travel by airplane. 
+
+- The poll found that 57% (2,127 respondents) said they would favor it.
+
+- Construct a 90% confidence interval for $p$
+:::
+
+```{r}
+#| echo: true
+prop.test(x = 2127, n = 3731, conf.level = 0.9)$conf
+```

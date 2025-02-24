@@ -1,0 +1,623 @@
+---
+title: "Errors and Power"
+subtitle: "Stat 250"
+author: "[Click here for PDF version](pdfs/15-errors-power.pdf)"
+format:
+  revealjs: 
+    theme: [default, slide-styles.scss]
+code-line-numbers: false
+code-annotations: hover
+---
+
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+
+library(ggformula)
+library(tidyverse)
+yt <- 0
+```
+
+## {background-image="img/type_1_errors.png" background-size="contain"}
+
+
+:::{.footer}
+Image credit: Allison Horst
+:::
+
+
+## {background-image="img/type_2_errors.png" background-size="contain"}
+
+:::{.footer}
+Image credit: Allison Horst
+:::
+
+
+## Your turn `r (yt <- yt+1)` 
+
+In a US court, the defendant is either innocent (H<sub>0</sub>)
+ or guilty (H<sub>A</sub>)
+
+(a) What does a Type 1 Error represent in this context? 
+  
+(b) What does a Type 2 Error represent?
+  
+
+
+## Your turn `r (yt <- yt+1)`
+
+:::{style="font-size: 95%;"}
+A consumer protection agency is testing a sample of cans of tomato soup from a company. The company is presumed to be making a safe product, unless the consumer protection agency finds evidence that the average level of the chemical bisphenol A (BPA) in tomato soup from this company is greater than 100 ppb (parts per billion). If there is evidence that the average BPA concentration is unsafe, they will recall all the soup and sue the company.
+
+(a) State null and alternative hypotheses.
+
+(b) What does a Type I error mean in this context?
+
+(b) What does a Type II error mean in this context?
+:::
+
+
+## Type I error rate
+
+
+$P(\text{Type I error}) = P(\text{Rejecting } H_0 | \rm true\ H_0) = \alpha$
+
+AKA false positive rate
+
+
+Where is this important?
+
+- Decision rules/rejection regions
+
+- Sample size calculations
+
+
+
+## Simulated population distributions
+
+::::{.columns}
+
+:::{.column width=50%}
+```{r, echo=FALSE, fig.height=5.5, fig.width=4, out.width = "95%"}
+set.seed(46453)
+POPULATION1 <- rchisq(n=10000, df=10)
+POPULATION2 <- rchisq(n=10000, df=10)
+par(mfrow = c(2,1),
+    mar = c(4,4,4,1))
+hist(POPULATION1, main = "Population 1", xlab = "X", xlim = c(0,30), col = "gray")
+abline(v = 10, lwd = 2, col='darkorange')
+mtext(side = 1, "Population 1 Mean", at = 10, col='darkorange')
+hist(POPULATION2, main = "Population 2", xlab = "Y", xlim = c(0,30), col = "gray")
+abline(v = 10, lwd = 2, col='darkorange')
+mtext(side = 1, "Population 2 Mean", at = 10, col='darkorange')
+```
+:::
+
+:::{.column width=50%}
+
+Consider two populations with *the same* mean:
+
+$\mu_1 = 10$ and $\mu_2 = 10$
+:::
+
+::::
+
+
+## Sampling from each population
+
+::::{.columns}
+:::{.column width=50%}
+```{r, echo=FALSE}
+set.seed(11488)
+```
+
+```{r, echo=FALSE}
+SAMPLE1 <- sample(POPULATION1, size = 25)
+SAMPLE2 <- sample(POPULATION2, size = 25)
+```
+
+```{r, echo=FALSE, fig.height=5.5, fig.width=4, dev = 'svg', out.width = "95%"}
+par(mfrow = c(2,1), mar = c(4,4,4,1))
+hist(SAMPLE1, main = "Sample 1", xlab = "X", xlim = c(0,30), col = "gray")
+abline(v = mean(SAMPLE1), lwd = 2, col='darkorange')
+mtext(side = 1, "Sample 1 Mean", at = mean(SAMPLE1), col='darkorange')
+
+hist(SAMPLE2, main = "Sample 2", xlab = "Y", xlim = c(0,30), col = "gray")
+abline(v = mean(SAMPLE2), lwd = 2, col='darkorange')
+mtext(side = 1, "Sample 2 Mean", at = mean(SAMPLE2), col='darkorange')
+```
+:::
+
+:::{.column width=50%}
+
+
+Sample of 25 members from each population
+
+( $\bar{X}=9.2$ and $\bar{Y}=11.1$ )
+:::
+::::
+
+
+## Two-sample hypothesis test
+
+$H_0: \mu_1 = \mu_2$ vs. $H_a: \mu_1 \ne \mu_2$
+
+$$ t = \frac{\bar{X} - \bar{Y}}{\sqrt{\dfrac{s_x^2}{n} + \dfrac{s_y^2}{m}}} = -1.83$$
+
+```{r, echo=TRUE}
+t <- t.test(SAMPLE1, SAMPLE2) 
+t$p.value
+```
+
+
+So if we reject when $p{\rm -value} < 0.1$, we would make a **Type I error**
+
+
+## Distribution of p-values
+
+```{r, echo=FALSE}
+set.seed(4542353)
+B <- 1e4
+pval <- numeric(B)
+for(b in 1:B){
+  SAMPLE1 <- sample(POPULATION1, size = 25)
+  SAMPLE2 <- sample(POPULATION2, size = 25)
+  pval[b] <- t.test(SAMPLE1, SAMPLE2)$p.value
+}
+```
+
+p-values are uniformly distributed under $H_0$
+
+```{r, echo=FALSE, fig.height=3, fig.width=4, out.width = "40%", fig.align='center'}
+hist(pval, main = NULL, xlab = "p-value", cex.lab=1.5, cex.main=1.5, breaks = seq(0,1,len=10), freq=FALSE, col="gray")
+abline(v=0.1, col='darkorange', lwd=3)
+arrows(0.1,0.5,0,0.5,col='darkorange', 
+      length = 0.075,lwd=3)
+```
+
+True $H_0 \Longrightarrow$ 10% of the p-values are less than 0.1
+
+
+## Type I error
+
+```{r, echo=FALSE, dev = 'svg', fig.height = 4.5, fig.align='center', out.width = "73%"}
+mu <- 2
+
+curve(dnorm(x), lwd=2, xlim = c(-3.5,4.5), xlab = "t", 
+      ylab = "Density", 
+      main="", axes=F)
+mtext(at = 0, expression(paste("H"[0]," Distribution")), col='black', line=1)
+axis(1)
+axis(2)
+
+cord.x <- c(mu,seq(mu,4.5,len=100),3.5)
+cord.y <- c(0,dnorm(seq(mu,4.5,len=100)),0) 
+polygon(cord.x,cord.y,col=rgb(0, 0, 0,0.5))
+
+text(x=0, y = 0.1,"Type I Error Rate")
+arrows(x0=0,y0=0.075,x1=2.25,y1=0.01,length=0.1)
+```
+
+
+## Your turn `r (yt <- yt+1)`
+
+<!-- 10.2 -->
+
+Let $Y= \#$ of successes out of $n=20$ iid S/F trials
+
+We wish to test the hypothesis $H_0 : p = .8$ versus the alternative, $H_A : p < .8$.
+
+Assume that the rejection region $\{y \le 12\}$ is used.
+
+Find $\alpha$.
+
+
+
+
+## Type II error rate
+
+$P(\text{Type II error}) = P(\text{Not rejecting } H_0 | \rm false\ H_0) = \beta$
+
+AKA false negative rate
+
+
+Where is this important?
+
+- Power
+
+- Sample size calculations
+
+
+
+
+## Your turn `r (yt <- yt+1)`
+
+<!-- 10.2 -->
+
+Let $Y= \#$ of successes out of $n=20$ iid S/F trials
+
+We wish to test the hypothesis $H_0 : p = .8$ versus the alternative, $H_A : p < .8$.
+
+Assume that the rejection region $\{y \le 12\}$ is used.
+
+
+Find $\beta$ when $p=0.6$.
+
+
+
+## Type I and type II errors
+
+```{r, echo=FALSE, dev = 'svg', fig.height = 4.5, fig.align='center', out.width = "73%"}
+mu <- 1
+
+curve(dnorm(x), lwd=2, xlim = c(-3.5,4.5), xlab = "t", 
+      ylab = "Density", 
+      main = "", axes=F)
+mtext(at = 0, expression(paste("H"[0]," Distribution")), col='black', line=1)
+
+curve(dnorm(x, mean=mu), lwd=2, xlim = c(-3.5,4.5),
+      add=TRUE, col='darkorange')
+axis(1)
+axis(2)
+mtext(at = 1, expression(paste("H"["a"]," Distribution")), col='darkorange')
+
+cord.x <- c(2,seq(2,4.5,len=100),3.5)
+cord.y <- c(0,dnorm(seq(2,4.5,len=100)),0) 
+polygon(cord.x,cord.y,col=rgb(0, 0, 0,0.5))
+
+cord.x <- c(-3.5,seq(-3.5,2,len=100),2)
+cord.y <- c(0,dnorm(seq(-3.5,2,len=100), mean=mu),0) 
+polygon(cord.x,cord.y,col=rgb(1, 0.5, 0,0.5), border='darkorange')
+
+text(x=3.3, y = 0.1,"Type I Error Rate")
+arrows(x0=3.3,y0=0.075,x1=2.25,y1=0.01,length=0.1)
+
+text(x=-1.25, y = 0.3,"Type II Error Rate", col='darkorange')
+arrows(x0=-1.25,y0=0.27,x1=1,y1=0.2,length=0.1, col='darkorange')
+```
+
+
+
+## Type I and type II errors
+
+```{r, echo=FALSE, dev = 'svg', fig.height = 4.5, fig.align='center', out.width = "73%"}
+mu <- 1
+
+curve(dnorm(x), lwd=2, xlim = c(-3.5,4.5), xlab = "t", 
+      ylab = "Density", 
+      main = "", axes=F)
+mtext(at = 0, expression(paste("H"[0]," Distribution")), col='black', line=1)
+
+curve(dnorm(x, mean=mu), lwd=2, xlim = c(-3.5,4.5),
+      add=TRUE, col='darkorange')
+axis(1)
+axis(2)
+mtext(at = 1, expression(paste("H"["a"]," Distribution")), col='darkorange')
+
+cord.x <- c(2.5,seq(2.5,4.5,len=100),3.5)
+cord.y <- c(0,dnorm(seq(2.5,4.5,len=100)),0) 
+polygon(cord.x,cord.y,col=rgb(0, 0, 0,0.5))
+
+cord.x <- c(-3.5,seq(-3.5,2.5,len=100),2.5)
+cord.y <- c(0,dnorm(seq(-3.5,2.5,len=100), mean=mu),0) 
+polygon(cord.x,cord.y,col=rgb(1, 0.5, 0,0.5), border='darkorange')
+
+text(x=3.3, y = 0.1,"Type I Error Rate")
+arrows(x0=3.3,y0=0.075,x1=2.75,y1=0.01,length=0.1)
+
+text(x=-1.25, y = 0.3,"Type II Error Rate", col='darkorange')
+arrows(x0=-1.25,y0=0.27,x1=1,y1=0.2,length=0.1, col='darkorange')
+```
+
+<!-- Smaller Type I error rate $\implies$ bigger Type II error rate -->
+
+<!-- We decreased $\alpha$ . How did the type II error rate change? -->
+
+
+## Type I and type II errors
+
+```{r, echo=FALSE, dev = 'svg', fig.height = 4.5, fig.align='center', out.width = "73%"}
+mu <- 1
+
+curve(dnorm(x), lwd=2, xlim = c(-3.5,6.5), xlab = "t", 
+      ylab = "Density", 
+      main = "", axes=F)
+mtext(at = 0, expression(paste("H"[0]," Distribution")), col='black', line=1)
+
+curve(dnorm(x, mean=mu), lwd=2, xlim = c(-3.5,6.5),
+      add=TRUE, col='darkorange')
+axis(1)
+axis(2)
+mtext(at = 1, expression(paste("H"["a"]," Distribution")), col='darkorange')
+
+cord.x <- c(2,seq(2,4.5,len=100),6.5)
+cord.y <- c(0,dnorm(seq(2,4.5,len=100)),0) 
+polygon(cord.x,cord.y,col=rgb(0, 0, 0,0.5))
+
+cord.x <- c(-3.5,seq(-3.5,2,len=100),2)
+cord.y <- c(0,dnorm(seq(-3.5,2,len=100), mean=mu),0) 
+polygon(cord.x,cord.y,col=rgb(1, 0.5, 0,0.5), border='darkorange')
+
+text(x=3.3, y = 0.1,"Type I Error Rate")
+arrows(x0=3.3,y0=0.075,x1=2.25,y1=0.01,length=0.1)
+
+text(x=-1.25, y = 0.3,"Type II Error Rate", col='darkorange')
+arrows(x0=-1.25,y0=0.27,x1=1,y1=0.2,length=0.1, col='darkorange')
+```
+
+
+
+## Effect size and type II errors
+
+```{r, echo=FALSE, dev = 'svg', fig.height = 4.5, fig.align='center', out.width = "73%"}
+mu <- 3
+
+curve(dnorm(x), lwd=2, xlim = c(-3.5,6.5), xlab = "t", 
+      ylab = "Density", 
+      main = "", axes=F)
+mtext(at = 0, expression(paste("H"[0]," Distribution")), col='black', line=1)
+
+curve(dnorm(x, mean=mu), lwd=2, xlim = c(-3.5,6.5),
+      add=TRUE, col='darkorange')
+axis(1)
+axis(2)
+mtext(at = mu, expression(paste("H"["a"]," Distribution")), col='darkorange')
+
+cord.x <- c(2,seq(2,4.5,len=100),3.5)
+cord.y <- c(0,dnorm(seq(2,4.5,len=100)),0) 
+polygon(cord.x,cord.y,col=rgb(0, 0, 0,0.5))
+
+cord.x <- c(-3.5,seq(-3.5,2,len=100),2)
+cord.y <- c(0,dnorm(seq(-3.5,2,len=100), mean=mu),0) 
+polygon(cord.x,cord.y,col=rgb(1, 0.5, 0,0.5), border='darkorange')
+
+text(x=3.3, y = 0.1,"Type I Error Rate")
+arrows(x0=3.3,y0=0.075,x1=2.25,y1=0.01,length=0.1)
+
+text(x=-1, y = 0.2,"Type II Error Rate", col='darkorange')
+arrows(x0=-1,y0=0.17,x1=1.25,y1=0.05,length=0.1, col='darkorange')
+```
+
+<!-- The effect size increased. How did the type II error rate change? -->
+
+
+
+## Type I and type II errors
+
+```{r, echo=FALSE, dev = 'svg', fig.height = 4.5, fig.align='center', out.width = "73%"}
+mu <- 1
+
+curve(dnorm(x), lwd=2, xlim = c(-3.5,4.5), xlab = "t", 
+      ylab = "Density", 
+      main = "", axes=F)
+mtext(at = 0, expression(paste("H"[0]," Distribution")), col='black', line=1)
+
+curve(dnorm(x, mean=mu), lwd=2, xlim = c(-3.5,4.5),
+      add=TRUE, col='darkorange')
+axis(1)
+axis(2)
+mtext(at = 1, expression(paste("H"["a"]," Distribution")), col='darkorange')
+
+cord.x <- c(2,seq(2,4.5,len=100),3.5)
+cord.y <- c(0,dnorm(seq(2,4.5,len=100)),0) 
+polygon(cord.x,cord.y,col=rgb(0, 0, 0,0.5))
+
+cord.x <- c(-3.5,seq(-3.5,2,len=100),2)
+cord.y <- c(0,dnorm(seq(-3.5,2,len=100), mean=mu),0) 
+polygon(cord.x,cord.y,col=rgb(1, 0.5, 0,0.5), border='darkorange')
+
+text(x=3.3, y = 0.1,"Type I Error Rate")
+arrows(x0=3.3,y0=0.075,x1=2.25,y1=0.01,length=0.1)
+
+text(x=-1.25, y = 0.3,"Type II Error Rate", col='darkorange')
+arrows(x0=-1.25,y0=0.27,x1=1,y1=0.2,length=0.1, col='darkorange')
+```
+
+
+
+## Standard error and type II error rate
+
+```{r, echo=FALSE, dev = 'svg', fig.height = 4.5, fig.align='center', out.width = "73%"}
+mu <- 1
+
+curve(dnorm(x, sd=0.25), lwd=2, xlim = c(-3.5,4.5), xlab = "t", 
+      ylab = "Density", 
+      main = "", axes=F, n=1e3)
+mtext(at = 0, expression(paste("H"[0]," Distribution")), col='black', line=1)
+
+curve(dnorm(x, mean=mu, sd=0.25), lwd=2, xlim = c(-3.5,4.5),
+      add=TRUE, col='darkorange', n=1e3)
+axis(1)
+axis(2)
+mtext(at = 1, expression(paste("H"["a"]," Distribution")), col='darkorange')
+
+cord.x <- c(0.49,seq(0.49,4.5,len=100),3.5)
+cord.y <- c(0,dnorm(seq(0.49,4.5,len=100), sd=0.25),0) 
+polygon(cord.x,cord.y,col=rgb(0, 0, 0,0.5))
+
+cord.x <- c(-3.5,seq(-3.5,0.49,len=100),0.49)
+cord.y <- c(0,dnorm(seq(-3.5,0.49,len=100), mean=mu, sd=0.25),0) 
+polygon(cord.x,cord.y,col=rgb(1, 0.5, 0,0.5), border='darkorange')
+
+text(x=2.3, y = 0.1,"Type I Error Rate")
+arrows(x0=1.7,y0=0.075,x1=1,y1=0.01,length=0.1)
+
+text(x=-1.25, y = 0.3,"Type II Error Rate", col='darkorange')
+arrows(x0=-1.25,y0=0.27,x1=0.4,y1=0.15,length=0.1, col='darkorange')
+```
+
+
+
+
+
+<!-- 10.88 -->
+
+## Your turn `r (yt <- yt+1)`
+
+Let $Y= \#$ of successes out of $n=20$ iid S/F trials
+
+We wish to test the hypothesis $H_0 : p = .8$ versus the alternative, $H_A : p < .8$.
+
+Assume that the rejection region $\{y \le 12\}$ is used.
+
+Find the power of the test if $p=0.6$.
+
+
+
+## Power curve
+
+Plot of power against different alternatives for the parameter
+
+Other aspects of the test can also be explored (e.g., sample size)
+
+```{r echo=FALSE, fig.height = 2.5, fig.width = 4, out.width = "55%", fig.align='center'}
+p_grid <- seq(0.001, 0.999, by = 0.01)
+power <- pbinom(12, size = 20, prob = p_grid)
+power10 <- pbinom(12, size = 30, prob = p_grid)
+gf_line(power ~ p_grid, xlab = "p", linetype = ~"n=20") %>% 
+  gf_line(power10 ~ p_grid, xlab = "p", linetype = ~"n=30") +
+  theme_classic() +
+  scale_linetype("")
+```
+
+
+
+## Power
+
+```{r, echo=FALSE, dev = 'svg', fig.height = 4.5, fig.align='center', out.width = "73%"}
+mu <- 1
+
+curve(dnorm(x), lwd=2, xlim = c(-3.5,6.5), xlab = "t", 
+      ylab = "Density", 
+      main="", axes=F)
+
+curve(dnorm(x, mean=mu), lwd=2, xlim = c(-3.5,6.5),
+      add=TRUE, col='darkorange')
+axis(1)
+axis(2)
+mtext(at = mu, expression(paste("H"["a"]," Distribution")), col='darkorange')
+mtext(at = 0, expression(paste("H"[0]," Distribution")), col='black', line=1)
+
+cord.x <- c(2,seq(2,4.5,len=100),3.5)
+cord.y <- c(0,dnorm(seq(2,4.5,len=100)),0) 
+polygon(cord.x,cord.y,col=rgb(0, 0, 0,0.5))
+
+cord.x <- c(2,seq(2,6.5,len=100),6.5)
+cord.y <- c(0,dnorm(seq(2,6.5,len=100), mean=mu),0) 
+polygon(cord.x,cord.y,col=rgb(1, 0.5, 0,0.5), border='darkorange')
+
+text(x=3.3, y = 0.1,"Type I Error Rate")
+arrows(x0=3.3,y0=0.075,x1=2.25,y1=0.01,length=0.1)
+
+text(x=5, y = 0.2,"Power", col='darkorange')
+arrows(x0=5,y0=0.17,x1=2.5,y1=0.05,length=0.1, col='darkorange')
+```
+
+
+## Power
+
+```{r, echo=FALSE, dev = 'svg', fig.height = 4.5, fig.align='center', out.width = "73%"}
+mu <- 3
+
+curve(dnorm(x), lwd=2, xlim = c(-3.5,6.5), xlab = "t", 
+      ylab = "Density", 
+      main="", axes=F)
+
+curve(dnorm(x, mean=mu), lwd=2, xlim = c(-3.5,6.5),
+      add=TRUE, col='darkorange')
+axis(1)
+axis(2)
+mtext(at = mu, expression(paste("H"["a"]," Distribution")), col='darkorange')
+mtext(at = 0, expression(paste("H"[0]," Distribution")), col='black', line=1)
+
+cord.x <- c(2,seq(2,4.5,len=100),3.5)
+cord.y <- c(0,dnorm(seq(2,4.5,len=100)),0) 
+polygon(cord.x,cord.y,col=rgb(0, 0, 0,0.5))
+
+cord.x <- c(2,seq(2,6.5,len=100),6.5)
+cord.y <- c(0,dnorm(seq(2,6.5,len=100), mean=mu),0) 
+polygon(cord.x,cord.y,col=rgb(1, 0.5, 0,0.5), border='darkorange')
+
+text(x=3.3, y = 0.1,"Type I Error Rate")
+arrows(x0=3.3,y0=0.075,x1=2.25,y1=0.01,length=0.1)
+
+text(x=5, y = 0.2,"Power", col='darkorange')
+arrows(x0=5,y0=0.17,x1=2.5,y1=0.05,length=0.1, col='darkorange')
+```
+
+
+
+## Power
+
+```{r, echo=FALSE, dev = 'svg', fig.height = 4.5, fig.align='center', out.width = "73%"}
+mu <- 1
+
+curve(dnorm(x), lwd=2, xlim = c(-3.5,5), xlab = "t", 
+      ylab = "Density", 
+      main="", axes=F)
+
+curve(dnorm(x, mean=mu), lwd=2, xlim = c(-3.5,5),
+      add=TRUE, col='darkorange')
+axis(1)
+axis(2)
+mtext(at = mu, expression(paste("H"["a"]," Distribution")), col='darkorange')
+mtext(at = 0, expression(paste("H"[0]," Distribution")), col='black', line=1)
+
+cord.x <- c(2,seq(2,4.5,len=100),4.5)
+cord.y <- c(0,dnorm(seq(2,4.5,len=100)),0) 
+polygon(cord.x,cord.y,col=rgb(0, 0, 0,0.5))
+
+cord.x <- c(2,seq(2,6.5,len=100),4.5)
+cord.y <- c(0,dnorm(seq(2,6.5,len=100), mean=mu),0) 
+polygon(cord.x,cord.y,col=rgb(1, 0.5, 0,0.5), border='darkorange')
+
+text(x=3.75, y = 0.1,"Type I\nError Rate")
+arrows(x0=3.74,y0=0.07,x1=2.25,y1=0.01,length=0.1)
+
+text(x=3.5, y = 0.2,"Power", col='darkorange')
+arrows(x0=3.49,y0=0.17,x1=2.5,y1=0.05,length=0.1, col='darkorange')
+```
+
+
+
+## Power
+
+```{r, echo=FALSE, dev = 'svg', fig.height = 4.5, fig.align='center', out.width = "73%"}
+mu <- 1
+
+curve(dnorm(x, sd=0.25), lwd=2, xlim = c(-3.5,3.75), xlab = "t", 
+      ylab = "Density", 
+      main = "", axes=F, n=1e3)
+mtext(at = 0, expression(paste("H"[0]," Distribution")), col='black', line=1)
+
+curve(dnorm(x, mean=mu, sd=0.25), lwd=2, xlim = c(-3.5,3.75),
+      add=TRUE, col='darkorange', n=1e3)
+axis(1)
+axis(2)
+mtext(at = 1, expression(paste("H"["a"]," Distribution")), col='darkorange')
+
+cord.x <- c(0.49,seq(0.49,4,len=100),3.5)
+cord.y <- c(0,dnorm(seq(0.49,4,len=100), sd=0.25),0) 
+polygon(cord.x,cord.y,col=rgb(0, 0, 0,0.5))
+
+cord.x <- c(0.49,seq(0.49,3.5,len=100),3.5)
+cord.y <- c(0,dnorm(seq(0.49,3.5,len=100), mean=mu, sd=0.25),0) 
+polygon(cord.x,cord.y,col=rgb(1, 0.5, 0,0.5), border='darkorange')
+
+text(x=2.8, y = 0.15,"Type I\nError Rate")
+arrows(x0=2,y0=0.11,x1=1,y1=0.01,length=0.1)
+
+text(x=2.51, y = 0.5,"Power", col='darkorange')
+arrows(x0=2.5,y0=0.46,x1=1,y1=0.2,length=0.1, col='darkorange')
+```
+
+
+
+## Test planning
+
+If planning a hypothesis test **before** data collection, you can determine the necessary sample size to achieve a specified power when using a set significance level/rejection region.
+
+<br>
+
+**Example:**
+Let $Y_i \overset{\rm iid}{\sim} N(\mu, 5^2)$. We wish to test $H_0: \mu=7$ vs. $H_A: \mu > 7$ at the $\alpha = 0.05$ level. What is the smallest sample size such that the test has power at least .80 when $\mu = 8$?

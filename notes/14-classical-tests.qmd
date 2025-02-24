@@ -1,0 +1,462 @@
+---
+title: "Classical Hypothesis Tests"
+subtitle: "Stat 250"
+author: "[Click here for PDF version](pdfs/14-classical-tests.pdf)"
+format:
+  revealjs: 
+    theme: [default, slide-styles.scss]
+code-line-numbers: false
+code-annotations: hover
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+knitr::opts_chunk$set(dev = 'svg')
+library(ggformula)
+library(openintro)
+library(patchwork)
+library(fontawesome)
+library(ggthemes)
+library(readxl)
+library(patchwork)
+
+library(tidyverse)
+library(knitr)
+library(mosaic)
+library(palmerpenguins)
+
+library(countdown)
+library(ggthemes)
+
+library(gt)
+survey <- read.csv("https://aloy.rbind.io/data/survey2022.csv")
+
+gentoo <- filter(penguins, species == "Gentoo")
+brake <- read_excel("../data/brake-reaction-time.xlsx")
+
+```
+
+## Review: Logic of testing
+
+:::{style="font-size: 90%;"}
+1. Formulate two competing **hypotheses** about the population
+
+2. Calculate a **test statistic** summarizing the relevant information to the claims
+
+3. Look at the **behavior of the test statistic** assuming that the initial claim is true
+
+4. **Compare** the observed test statistic to the expected behavior—i.e., determine the strength of evidence against the null
+
+5. State a **conclusion in context**
+:::
+
+## One-sample test
+
+**Do Carls sleep less than 8 hours per night?**
+
+- Surveyed Stat 120 students 
+
+- "On average, how many hours of sleep do you get on a weeknight?"
+
+
+```{r echo=FALSE}
+favstats(~sleep, data = survey) |>
+  gt() %>%
+  fmt_number(columns = min:sd, decimals  = 2) |>
+  tab_options(table.font.size = 24)
+```
+
+
+```{r echo=FALSE, fig.height = 2.5, fig.width = 4, fig.align='center'}
+gf_boxplot(~sleep, data = survey) %>%
+   gf_refine(scale_y_discrete(labels = NULL)) +
+  theme_minimal()
+```
+
+## One-sample problem
+
+::::::{style="font-size: 85%;"}
+::::{.columns}
+
+:::{.column width=30%}
+Assume
+:::
+
+:::{.column width=70%}
+We have a random sample from a $N(\mu, \sigma^2)$ population
+:::
+
+::::
+
+<br>
+
+:::::{.fragment}
+::::{.columns}
+
+:::{.column width=30%}
+Hypothesize
+:::
+
+:::{.column width=70%}
+$H_0: \mu = \mu_0$ vs. $H_a: \mu \mathrel{\substack{<\\ \ne\\ >}} \mu_0$
+:::
+
+::::
+
+:::::
+
+:::::{.fragment}
+
+::::{.columns}
+
+:::{.column width=30%}
+Test statistic
+:::
+
+:::{.column width=70%}
+$T = \dfrac{\bar{X}-\mu_0}{s/\sqrt{n}}$
+:::
+
+::::
+:::::
+
+<br>
+
+:::::{.fragment}
+
+::::{.columns}
+
+:::{.column width=30%}
+Reference distribution
+:::
+
+:::{.column width=70%}
+$T \sim t_{n-1}$ is $H_0$ is true
+:::
+
+::::
+:::::
+
+::::::
+
+## Your turn
+
+**Do Carls sleep less than 8 hours per night?**
+
+Work with a neighbor to complete this hypothesis test and state a conclusion.
+
+```{r echo=FALSE}
+favstats(~sleep, data = survey) |>
+  gt() %>%
+  fmt_number(columns = min:sd, decimals  = 2) |>
+  tab_options(table.font.size = 24)
+```
+
+
+```{r echo=FALSE, fig.height = 2.5, fig.width = 4, fig.align='center'}
+gf_boxplot(~sleep, data = survey) %>%
+   gf_refine(scale_y_discrete(labels = NULL)) +
+  theme_minimal()
+```
+
+<br>
+
+```{r}
+countdown(4)
+```
+
+
+
+## t-tests in `r fa("r-project")`
+
+```{r}
+#| echo: true
+t.test(~sleep, data = survey, mu = 8, alternative = "less")
+```
+
+:::{.aside}
+`alternative` can also be set to `"greater"` or `"two.sided"`
+:::
+
+
+
+
+## Extracting CIs
+
+```{r}
+#| echo: true
+t.test(~sleep, data = survey)$conf
+```
+
+Set `alternative` to `"greater"` or `"less"` for a one-sided confidence bound
+
+
+
+
+## Example
+
+::::::{style="font-size: 90%;"}
+**Do Americans support a national health plan?**
+
+- A Kaiser Family Foundation poll for a random sample of US adults in 2019 found that 79% of Democrats, 55% of Independents, and 24% of Republicans supported a generic "National Health Plan."
+
+- There were 347 Democrats, 298 Republicans, and 617 Independents surveyed.
+
+- A political pundit on TV claims that a majority of Independents support a National Health Plan. 
+
+- Do these data provide strong evidence to support this type of statement? 
+::::::
+
+## One-proportion problem
+
+::::{.columns}
+
+:::{.column width=30%}
+Assume
+:::
+
+:::{.column width=70%}
+$X \sim \text{Binom}(n, p)$
+:::
+
+::::
+
+<br>
+
+:::::{.fragment}
+::::{.columns}
+
+:::{.column width=30%}
+Hypothesize
+:::
+
+:::{.column width=70%}
+$H_0: p = p_0$ vs. $H_a: p \mathrel{\substack{<\\ \ne\\ >}} p_0$
+:::
+
+::::
+
+:::::
+
+<br>
+
+:::::{.fragment}
+
+::::{.columns}
+
+:::{.column width=30%}
+Test statistic
+:::
+
+:::{.column width=70%}
+The observed count
+:::
+
+::::
+:::::
+
+<br>
+
+:::::{.fragment}
+
+::::{.columns}
+
+:::{.column width=30%}
+Reference distribution
+:::
+
+:::{.column width=70%}
+$X \sim \text{Binom}(n, p_0)$ if $H_0$ is true
+:::
+
+::::
+:::::
+
+
+## Your turn
+
+- 339 out of 617 independents supported a National Health Plan
+
+- Do these data provide strong evidence to support the claim that a majority of Independents support a National Health Plan? 
+
+```{r}
+countdown(4)
+```
+
+
+
+## Exact test for proportion in `r fa("r-project")`
+
+
+```{r}
+#| echo: true
+binom.test(x = 339, n = 617, p = 0.5, alternative = "greater")
+```
+
+
+## Approximate test for _p_
+
+::::::{style="font-size: 85%;"}
+::::{.columns}
+
+:::{.column width=30%}
+CLT
+:::
+
+:::{.column width=70%}
+For large enough $n$, $\widehat{p} \overset{.}{\sim} N \left(p, \dfrac{p(1-p)}{n} \right)$
+:::
+
+::::
+
+<br>
+
+:::::{.fragment}
+::::{.columns}
+
+:::{.column width=30%}
+Approx. reference distribution
+:::
+
+:::{.column width=70%}
+If $p=p_0$, then $\widehat{p} \overset{.}{\sim} N \left(p_0, \dfrac{p_0(1-p_0)}{n} \right)$
+:::
+
+::::
+:::::
+
+<br>
+
+:::::{.fragment}
+::::{.columns}
+
+:::{.column width=30%}
+Large-sample test statistic
+:::
+
+:::{.column width=70%}
+$Z = \dfrac{\widehat{p}-p_0}{\sqrt{\dfrac{p_0(1-p_0)}{n}}}$
+:::
+
+::::
+:::::
+
+::::::
+
+
+## Approximate test for proportion in `r fa("r-project")`
+
+```{r}
+#| echo: true
+prop.test(x = 339, n = 617, p = 0.5, alternative = "greater")
+```
+
+## Is $n$ large enough?
+
+- Many textbooks suggest $np_0 \ge 10$ and $n(1-p_0) \ge 10$
+
+- Our textbook suggests $np_0 \ge 384$ and $n(1-p_0) \ge 384$
+
+- Use the binomial test otherwise
+
+
+
+
+## Two-sample t-test
+
+:::{style="font-size: 85%;"}
+**Is it better to hand write or type notes?**
+
+- Student researchers randomly assigned 20 college students to the paper-based note-taking group and 20 students to the computer-based note taking group
+
+-  All subjects showed a 12-minute video about the sun and allowed to take notes using the assigned method
+
+- After video, notes collected, then subjects were given a 10-question quiz
+
+- Does the note taking method impact the average score?
+
+:::
+
+## Two-sample t-test
+
+::::::{style="font-size: 85%;"}
+::::{.columns}
+
+:::{.column width=30%}
+Assume
+:::
+
+:::{.column width=70%}
+- Both samples are iid draws from $N(\mu, \sigma^2)$ populations
+- Independent groups
+:::
+
+::::
+
+
+
+:::::{.fragment}
+::::{.columns}
+
+:::{.column width=30%}
+Hypothesize
+:::
+
+:::{.column width=70%}
+$H_0: \mu = \delta_0$ vs. $H_a: \mu \mathrel{\substack{<\\ \ne\\ >}} \delta_0$
+:::
+
+::::
+
+:::::
+
+
+
+:::::{.fragment}
+
+::::{.columns}
+
+:::{.column width=30%}
+Test statistic
+:::
+
+:::{.column width=70%}
+$T = \dfrac{\bar{X}_n-\bar{Y}_m-\delta_0}{\sqrt{\dfrac{s^2_1}{n}+\dfrac{s^2_1}{m}}}$
+:::
+
+::::
+:::::
+
+
+
+
+:::::{.fragment}
+
+::::{.columns}
+
+:::{.column width=30%}
+Reference distribution
+:::
+
+:::{.column width=70%}
+$T \sim t_{n-1}$ is $H_0$ is true
+:::
+
+::::
+:::::
+
+::::::
+
+## Two-sample t-test in `r fa("r-project")`
+
+
+```{r echo=FALSE}
+notes <- read.csv("../data/notetaking.csv")
+```
+
+```{r}
+#| echo: true
+t.test(Score ~ Method, data = notes, alternative = "two.sided")
+```
+
+

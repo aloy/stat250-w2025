@@ -387,7 +387,7 @@ Assume
 :::
 
 :::{.column width=70%}
-- Both samples are iid draws from $N(\mu, \sigma^2)$ populations
+- Both samples are iid draws from $N(\mu_i, \sigma^2_i)$ populations
 - Independent groups
 :::
 
@@ -403,7 +403,7 @@ Hypothesize
 :::
 
 :::{.column width=70%}
-$H_0: \mu = \delta_0$ vs. $H_a: \mu \mathrel{\substack{<\\ \ne\\ >}} \delta_0$
+$H_0: \mu_1 - \mu_2 = \delta_0$ vs. $H_a: \mu_1 - \mu_2 \mathrel{\substack{<\\ \ne\\ >}} \delta_0$
 :::
 
 ::::
@@ -439,7 +439,7 @@ Reference distribution
 :::
 
 :::{.column width=70%}
-$T \sim t_{n-1}$ is $H_0$ is true
+$T \sim t_{df}$ if $H_0$ is true, where df are the Welch-Sattherthwaite approx. d.f.
 :::
 
 ::::

@@ -15,6 +15,7 @@ options(htmltools.dir.version = FALSE)
 
 library(ggformula)
 library(tidyverse)
+library(ggthemes)
 yt <- 0
 ```
 
@@ -60,83 +61,48 @@ A consumer protection agency is testing a sample of cans of tomato soup from a c
 ## Type I error rate
 
 
-$P(\text{Type I error}) = P(\text{Rejecting } H_0 | \rm true\ H_0) = \alpha$
+$P(\text{Type I error}) = P(\text{Reject } H_0 |H_0 \text{ is true}) = \alpha$
+
 
 AKA false positive rate
 
+<br>
 
 Where is this important?
 
-- Decision rules/rejection regions
+- Decision rules/critical regions
 
 - Sample size calculations
 
 
+## Your turn `r (yt <- yt+1)`
 
-## Simulated population distributions
+- Let $Y= \#$ of successes out of $n=20$ iid S/F trials; thus, $Y \sim \text{Binom}(n=20,p)$.
 
-::::{.columns}
+- We wish to test the hypothesis $H_0 : p = .8$ versus the alternative, $H_a : p < .8$.
 
-:::{.column width=50%}
-```{r, echo=FALSE, fig.height=5.5, fig.width=4, out.width = "95%"}
+- Assume that the critical region $\{y \le 12\}$ is used.
+
+- Find $\alpha$, the probability of making a type I error.
+
+
+
+## Simulation  {background-image="img/type1errorsim.png" background-size="73%"}
+
+
+
+```{r}
+#| include: false
 set.seed(46453)
 POPULATION1 <- rchisq(n=10000, df=10)
 POPULATION2 <- rchisq(n=10000, df=10)
-par(mfrow = c(2,1),
-    mar = c(4,4,4,1))
-hist(POPULATION1, main = "Population 1", xlab = "X", xlim = c(0,30), col = "gray")
-abline(v = 10, lwd = 2, col='darkorange')
-mtext(side = 1, "Population 1 Mean", at = 10, col='darkorange')
-hist(POPULATION2, main = "Population 2", xlab = "Y", xlim = c(0,30), col = "gray")
-abline(v = 10, lwd = 2, col='darkorange')
-mtext(side = 1, "Population 2 Mean", at = 10, col='darkorange')
-```
-:::
 
-:::{.column width=50%}
-
-Consider two populations with *the same* mean:
-
-$\mu_1 = 10$ and $\mu_2 = 10$
-:::
-
-::::
-
-
-## Sampling from each population
-
-::::{.columns}
-:::{.column width=50%}
-```{r, echo=FALSE}
 set.seed(11488)
-```
 
-```{r, echo=FALSE}
 SAMPLE1 <- sample(POPULATION1, size = 25)
 SAMPLE2 <- sample(POPULATION2, size = 25)
+
 ```
-
-```{r, echo=FALSE, fig.height=5.5, fig.width=4, dev = 'svg', out.width = "95%"}
-par(mfrow = c(2,1), mar = c(4,4,4,1))
-hist(SAMPLE1, main = "Sample 1", xlab = "X", xlim = c(0,30), col = "gray")
-abline(v = mean(SAMPLE1), lwd = 2, col='darkorange')
-mtext(side = 1, "Sample 1 Mean", at = mean(SAMPLE1), col='darkorange')
-
-hist(SAMPLE2, main = "Sample 2", xlab = "Y", xlim = c(0,30), col = "gray")
-abline(v = mean(SAMPLE2), lwd = 2, col='darkorange')
-mtext(side = 1, "Sample 2 Mean", at = mean(SAMPLE2), col='darkorange')
-```
-:::
-
-:::{.column width=50%}
-
-
-Sample of 25 members from each population
-
-( $\bar{X}=9.2$ and $\bar{Y}=11.1$ )
-:::
-::::
-
 
 ## Two-sample hypothesis test
 
@@ -192,34 +158,30 @@ axis(2)
 
 cord.x <- c(mu,seq(mu,4.5,len=100),3.5)
 cord.y <- c(0,dnorm(seq(mu,4.5,len=100)),0) 
+
+cord.x2 <- c(-mu,seq(-mu, -4.5,len=100),-3.5)
+cord.y2 <- c(0,dnorm(seq(-mu,-4.5,len=100)),0) 
+
 polygon(cord.x,cord.y,col=rgb(0, 0, 0,0.5))
+polygon(cord.x2,cord.y2,col=rgb(0, 0, 0,0.5))
+
 
 text(x=0, y = 0.1,"Type I Error Rate")
 arrows(x0=0,y0=0.075,x1=2.25,y1=0.01,length=0.1)
+arrows(x0=0,y0=0.075,x1=-2.25,y1=0.01,length=0.1)
 ```
 
-
-## Your turn `r (yt <- yt+1)`
-
-<!-- 10.2 -->
-
-Let $Y= \#$ of successes out of $n=20$ iid S/F trials
-
-We wish to test the hypothesis $H_0 : p = .8$ versus the alternative, $H_A : p < .8$.
-
-Assume that the rejection region $\{y \le 12\}$ is used.
-
-Find $\alpha$.
 
 
 
 
 ## Type II error rate
 
-$P(\text{Type II error}) = P(\text{Not rejecting } H_0 | \rm false\ H_0) = \beta$
+$P(\text{Type II error}) = P(\text{Do not reject } H_0 |H_0 \text{ is false}) = \beta$
 
 AKA false negative rate
 
+<br>
 
 Where is this important?
 
@@ -234,14 +196,13 @@ Where is this important?
 
 <!-- 10.2 -->
 
-Let $Y= \#$ of successes out of $n=20$ iid S/F trials
+- Let $Y= \#$ of successes out of $n=20$ iid S/F trials; thus, $Y \sim \text{Binom}(n=20,p)$.
 
-We wish to test the hypothesis $H_0 : p = .8$ versus the alternative, $H_A : p < .8$.
+- We wish to test the hypothesis $H_0 : p = .8$ versus the alternative, $H_a : p < .8$.
 
-Assume that the rejection region $\{y \le 12\}$ is used.
+- Assume that the critical region $\{y \le 12\}$ is used and that the truth is that $p=0.6$ (so $H_0$ is false).
 
-
-Find $\beta$ when $p=0.6$.
+- Calculate $\beta$.
 
 
 
@@ -314,7 +275,7 @@ arrows(x0=-1.25,y0=0.27,x1=1,y1=0.2,length=0.1, col='darkorange')
 <!-- We decreased $\alpha$ . How did the type II error rate change? -->
 
 
-## Type I and type II errors
+## Effect size and type II errors
 
 ```{r, echo=FALSE, dev = 'svg', fig.height = 4.5, fig.align='center', out.width = "73%"}
 mu <- 1
@@ -382,7 +343,7 @@ arrows(x0=-1,y0=0.17,x1=1.25,y1=0.05,length=0.1, col='darkorange')
 
 
 
-## Type I and type II errors
+## SE and type II error rate
 
 ```{r, echo=FALSE, dev = 'svg', fig.height = 4.5, fig.align='center', out.width = "73%"}
 mu <- 1
@@ -415,7 +376,7 @@ arrows(x0=-1.25,y0=0.27,x1=1,y1=0.2,length=0.1, col='darkorange')
 
 
 
-## Standard error and type II error rate
+## SE and type II error rate
 
 ```{r, echo=FALSE, dev = 'svg', fig.height = 4.5, fig.align='center', out.width = "73%"}
 mu <- 1
@@ -448,41 +409,93 @@ arrows(x0=-1.25,y0=0.27,x1=0.4,y1=0.15,length=0.1, col='darkorange')
 
 
 
+## Power
+
+$$
+\text{Power} = P(\text{Reject } H_0 |H_0 \text{ is false}) = 1 - \beta
+$$
 
 
-<!-- 10.88 -->
+- Statisticians often talk about the power of a test rather than type II error
+
+- Good tests have high power
+
 
 ## Your turn `r (yt <- yt+1)`
 
-Let $Y= \#$ of successes out of $n=20$ iid S/F trials
+- Let $Y= \#$ of successes out of $n=20$ iid S/F trials; thus, $Y \sim \text{Binom}(n=20,p)$.
 
-We wish to test the hypothesis $H_0 : p = .8$ versus the alternative, $H_A : p < .8$.
+- We wish to test the hypothesis $H_0 : p = .8$ versus the alternative, $H_a : p < .8$.
 
-Assume that the rejection region $\{y \le 12\}$ is used.
+- Assume that the critical region $\{y \le 12\}$ is used and that the truth is that $p=0.6$ (so $H_0$ is false).
 
-Find the power of the test if $p=0.6$.
+- Calculate the power of the test.
 
 
+## Power and $\alpha$
 
-## Power curve
+```{r, echo=FALSE, dev = 'svg', fig.height = 4.5, fig.align='center', out.width = "73%"}
+mu <- 1
 
-Plot of power against different alternatives for the parameter
+curve(dnorm(x), lwd=2, xlim = c(-3.5,6.5), xlab = "t", 
+      ylab = "Density", 
+      main="", axes=F)
 
-Other aspects of the test can also be explored (e.g., sample size)
+curve(dnorm(x, mean=mu), lwd=2, xlim = c(-3.5,6.5),
+      add=TRUE, col='darkorange')
+axis(1)
+axis(2)
+mtext(at = mu, expression(paste("H"["a"]," Distribution")), col='darkorange')
+mtext(at = 0, expression(paste("H"[0]," Distribution")), col='black', line=1)
 
-```{r echo=FALSE, fig.height = 2.5, fig.width = 4, out.width = "55%", fig.align='center'}
-p_grid <- seq(0.001, 0.999, by = 0.01)
-power <- pbinom(12, size = 20, prob = p_grid)
-power10 <- pbinom(12, size = 30, prob = p_grid)
-gf_line(power ~ p_grid, xlab = "p", linetype = ~"n=20") %>% 
-  gf_line(power10 ~ p_grid, xlab = "p", linetype = ~"n=30") +
-  theme_classic() +
-  scale_linetype("")
+cord.x <- c(2,seq(2,4.5,len=100),3.5)
+cord.y <- c(0,dnorm(seq(2,4.5,len=100)),0) 
+polygon(cord.x,cord.y,col=rgb(0, 0, 0,0.5))
+
+cord.x <- c(2,seq(2,6.5,len=100),6.5)
+cord.y <- c(0,dnorm(seq(2,6.5,len=100), mean=mu),0) 
+polygon(cord.x,cord.y,col=rgb(1, 0.5, 0,0.5), border='darkorange')
+
+text(x=3.3, y = 0.1,"Type I Error Rate")
+arrows(x0=3.3,y0=0.075,x1=2.25,y1=0.01,length=0.1)
+
+text(x=5, y = 0.2,"Power", col='darkorange')
+arrows(x0=5,y0=0.17,x1=2.5,y1=0.05,length=0.1, col='darkorange')
 ```
 
+## Power and $\alpha$
 
+```{r, echo=FALSE, dev = 'svg', fig.height = 4.5, fig.align='center', out.width = "73%"}
+mu <- 1
 
-## Power
+curve(dnorm(x), lwd=2, xlim = c(-3.5,6.5), xlab = "t", 
+      ylab = "Density", 
+      main="", axes=F)
+
+curve(dnorm(x, mean=mu), lwd=2, xlim = c(-3.5,6.5),
+      add=TRUE, col='darkorange')
+axis(1)
+axis(2)
+mtext(at = mu, expression(paste("H"["a"]," Distribution")), col='darkorange')
+mtext(at = 0, expression(paste("H"[0]," Distribution")), col='black', line=1)
+
+cutoff <- 1.5
+cord.x <- c(cutoff,seq(cutoff,4.5,len=100),3.5)
+cord.y <- c(0,dnorm(seq(cutoff,4.5,len=100)),0) 
+polygon(cord.x,cord.y,col=rgb(0, 0, 0,0.5))
+
+cord.x <- c(cutoff,seq(cutoff,6.5,len=100),6.5)
+cord.y <- c(0,dnorm(seq(cutoff,6.5,len=100), mean=mu),0) 
+polygon(cord.x,cord.y,col=rgb(1, 0.5, 0,0.5), border='darkorange')
+
+text(x=3.3, y = 0.1,"Type I Error Rate")
+arrows(x0=3.3,y0=0.075,x1=2.25,y1=0.01,length=0.1)
+
+text(x=5, y = 0.2,"Power", col='darkorange')
+arrows(x0=5,y0=0.17,x1=2.5,y1=0.05,length=0.1, col='darkorange')
+```
+
+## Power and effect size
 
 ```{r, echo=FALSE, dev = 'svg', fig.height = 4.5, fig.align='center', out.width = "73%"}
 mu <- 1
@@ -514,7 +527,7 @@ arrows(x0=5,y0=0.17,x1=2.5,y1=0.05,length=0.1, col='darkorange')
 ```
 
 
-## Power
+## Power and effect size
 
 ```{r, echo=FALSE, dev = 'svg', fig.height = 4.5, fig.align='center', out.width = "73%"}
 mu <- 3
@@ -547,7 +560,7 @@ arrows(x0=5,y0=0.17,x1=2.5,y1=0.05,length=0.1, col='darkorange')
 
 
 
-## Power
+## Power and SE
 
 ```{r, echo=FALSE, dev = 'svg', fig.height = 4.5, fig.align='center', out.width = "73%"}
 mu <- 1
@@ -580,7 +593,7 @@ arrows(x0=3.49,y0=0.17,x1=2.5,y1=0.05,length=0.1, col='darkorange')
 
 
 
-## Power
+## Power and SE
 
 ```{r, echo=FALSE, dev = 'svg', fig.height = 4.5, fig.align='center', out.width = "73%"}
 mu <- 1
@@ -611,7 +624,83 @@ text(x=2.51, y = 0.5,"Power", col='darkorange')
 arrows(x0=2.5,y0=0.46,x1=1,y1=0.2,length=0.1, col='darkorange')
 ```
 
+## Power curves
 
+Plot of power against different alternatives for the parameter
+
+
+::::{.columns}
+:::{.column width="40%"}
+Example: 
+
+- $H_0 : p = .8$ vs. $H_A : p < .8$
+- $Y \sim \text{Binom}(n=20,p)$
+- critical region $\{y \le 12\}$
+
+:::
+
+:::{.column width="60%"}
+
+<br>
+
+```{r echo=FALSE, fig.height = 2.5, fig.width = 4, fig.align='right', out.width="90%"}
+p_grid <- seq(0.001, 0.999, by = 0.01)
+power <- pbinom(12, size = 20, prob = p_grid)
+power10 <- pbinom(12, size = 30, prob = p_grid)
+gf_line(power ~ p_grid, xlab = "p") +
+  theme_classic() + 
+  scale_x_continuous(limits = c(0, 1), expand = expansion(mult = c(0, 0))) +
+  scale_y_continuous(expand = expansion(mult = c(0.01, 0.02)))
+```
+:::
+::::
+
+## Power curves
+
+One-sample t-test
+
+- $H_0: \mu = 5$ vs. $H_a: \mu \ne 5$
+- Assuming $s=2$
+
+```{r}
+#| echo: false
+#| fig-width: 5
+#| fig-height: 3
+#| warning: false
+#| out-width: 60%
+#| fig-align: center
+mu_grid <- seq(5-3*2, 5+3*2, by = 0.05)
+
+
+calc_power <- function(null = 5, truth, n = 15, s = 2, alpha = 0.05) {
+  quant <- qt(1 - alpha/2, df = n - 1)
+  se <- s / sqrt(n)
+  cr_low <- (null - quant * se - truth) / se
+  cr_high <- (null + quant * se - truth) / se
+  
+  pt(cr_low, df = n - 1) + 1 - pt(cr_high, df = n - 1)
+}
+
+calc_power <- Vectorize(calc_power, vectorize.args = "truth")
+
+tpower15 <- calc_power(truth = mu_grid, n = 15)
+tpower30 <- calc_power(truth = mu_grid, n = 30)
+tpower60 <- calc_power(truth = mu_grid, n = 60)
+
+tpower_df <- bind_rows(
+  data.frame(n = 15, power = tpower15, mu = mu_grid),
+  data.frame(n = 30, power = tpower30, mu = mu_grid),
+  data.frame(n = 60, power = tpower60, mu = mu_grid),
+)
+
+gf_line(power ~ mu, data = tpower_df, linetype = ~factor(n), color = ~factor(n), xlab = expression(mu)) +
+  scale_color_colorblind("n") +
+  scale_linetype("n") +
+  scale_x_continuous(limits = c(2, 8), expand = expansion(mult = c(0, 0))) +
+  scale_y_continuous(expand = expansion(mult = c(0.01, 0.02))) +
+  theme_classic() +
+  theme(legend.position="top") 
+```
 
 ## Test planning
 

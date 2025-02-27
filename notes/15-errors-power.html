@@ -436,49 +436,26 @@
 </section>
 <section id="type-i-error-rate" class="slide level2">
 <h2>Type I error rate</h2>
-<p><span class="math inline">\(P(\text{Type I error}) = P(\text{Rejecting } H_0 | \rm true\ H_0) = \alpha\)</span></p>
+<p><span class="math inline">\(P(\text{Type I error}) = P(\text{Reject } H_0 |H_0 \text{ is true}) = \alpha\)</span></p>
 <p>AKA false positive rate</p>
+<p><br></p>
 <p>Where is this important?</p>
 <ul>
-<li><p>Decision rules/rejection regions</p></li>
+<li><p>Decision rules/critical regions</p></li>
 <li><p>Sample size calculations</p></li>
 </ul>
 </section>
-<section id="simulated-population-distributions" class="slide level2">
-<h2>Simulated population distributions</h2>
-<div class="columns">
-<div class="column" style="width:50%;">
-<div class="cell">
-<div class="cell-output-display">
-<div>
-<figure>
-<p><img data-src="15-errors-power_files/figure-revealjs/unnamed-chunk-1-1.png" style="width:95.0%"></p>
-</figure>
-</div>
-</div>
-</div>
-</div><div class="column" style="width:50%;">
-<p>Consider two populations with <em>the same</em> mean:</p>
-<p><span class="math inline">\(\mu_1 = 10\)</span> and <span class="math inline">\(\mu_2 = 10\)</span></p>
-</div></div>
+<section id="your-turn-3" class="slide level2">
+<h2>Your turn 3</h2>
+<ul>
+<li><p>Let <span class="math inline">\(Y= \#\)</span> of successes out of <span class="math inline">\(n=20\)</span> iid S/F trials; thus, <span class="math inline">\(Y \sim \text{Binom}(n=20,p)\)</span>.</p></li>
+<li><p>We wish to test the hypothesis <span class="math inline">\(H_0 : p = .8\)</span> versus the alternative, <span class="math inline">\(H_a : p &lt; .8\)</span>.</p></li>
+<li><p>Assume that the critical region <span class="math inline">\(\{y \le 12\}\)</span> is used.</p></li>
+<li><p>Find <span class="math inline">\(\alpha\)</span>, the probability of making a type I error.</p></li>
+</ul>
 </section>
-<section id="sampling-from-each-population" class="slide level2">
-<h2>Sampling from each population</h2>
-<div class="columns">
-<div class="column" style="width:50%;">
-<div class="cell">
-<div class="cell-output-display">
-<div>
-<figure>
-<p><img data-src="15-errors-power_files/figure-revealjs/unnamed-chunk-4-1.svg" style="width:95.0%"></p>
-</figure>
-</div>
-</div>
-</div>
-</div><div class="column" style="width:50%;">
-<p>Sample of 25 members from each population</p>
-<p>( <span class="math inline">\(\bar{X}=9.2\)</span> and <span class="math inline">\(\bar{Y}=11.1\)</span> )</p>
-</div></div>
+<section id="simulation" class="slide level2" data-background-image="img/type1errorsim.png" data-background-size="73%">
+<h2>Simulation</h2>
 </section>
 <section id="two-sample-hypothesis-test" class="slide level2">
 <h2>Two-sample hypothesis test</h2>
@@ -497,24 +474,17 @@
 <h2>Distribution of p-values</h2>
 <p>p-values are uniformly distributed under <span class="math inline">\(H_0\)</span></p>
 
-<img data-src="15-errors-power_files/figure-revealjs/unnamed-chunk-7-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:40.0%"><p>True <span class="math inline">\(H_0 \Longrightarrow\)</span> 10% of the p-values are less than 0.1</p>
+<img data-src="15-errors-power_files/figure-revealjs/unnamed-chunk-4-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:40.0%"><p>True <span class="math inline">\(H_0 \Longrightarrow\)</span> 10% of the p-values are less than 0.1</p>
 </section>
 <section id="type-i-error" class="slide level2">
 <h2>Type I error</h2>
 
-<img data-src="15-errors-power_files/figure-revealjs/unnamed-chunk-8-1.svg" class="quarto-figure quarto-figure-center r-stretch" style="width:73.0%"></section>
-<section id="your-turn-3" class="slide level2">
-<h2>Your turn 3</h2>
-<!-- 10.2 -->
-<p>Let <span class="math inline">\(Y= \#\)</span> of successes out of <span class="math inline">\(n=20\)</span> iid S/F trials</p>
-<p>We wish to test the hypothesis <span class="math inline">\(H_0 : p = .8\)</span> versus the alternative, <span class="math inline">\(H_A : p &lt; .8\)</span>.</p>
-<p>Assume that the rejection region <span class="math inline">\(\{y \le 12\}\)</span> is used.</p>
-<p>Find <span class="math inline">\(\alpha\)</span>.</p>
-</section>
+<img data-src="15-errors-power_files/figure-revealjs/unnamed-chunk-5-1.svg" class="quarto-figure quarto-figure-center r-stretch" style="width:73.0%"></section>
 <section id="type-ii-error-rate" class="slide level2">
 <h2>Type II error rate</h2>
-<p><span class="math inline">\(P(\text{Type II error}) = P(\text{Not rejecting } H_0 | \rm false\ H_0) = \beta\)</span></p>
+<p><span class="math inline">\(P(\text{Type II error}) = P(\text{Do not reject } H_0 |H_0 \text{ is false}) = \beta\)</span></p>
 <p>AKA false negative rate</p>
+<p><br></p>
 <p>Where is this important?</p>
 <ul>
 <li><p>Power</p></li>
@@ -524,68 +494,116 @@
 <section id="your-turn-4" class="slide level2">
 <h2>Your turn 4</h2>
 <!-- 10.2 -->
-<p>Let <span class="math inline">\(Y= \#\)</span> of successes out of <span class="math inline">\(n=20\)</span> iid S/F trials</p>
-<p>We wish to test the hypothesis <span class="math inline">\(H_0 : p = .8\)</span> versus the alternative, <span class="math inline">\(H_A : p &lt; .8\)</span>.</p>
-<p>Assume that the rejection region <span class="math inline">\(\{y \le 12\}\)</span> is used.</p>
-<p>Find <span class="math inline">\(\beta\)</span> when <span class="math inline">\(p=0.6\)</span>.</p>
+<ul>
+<li><p>Let <span class="math inline">\(Y= \#\)</span> of successes out of <span class="math inline">\(n=20\)</span> iid S/F trials; thus, <span class="math inline">\(Y \sim \text{Binom}(n=20,p)\)</span>.</p></li>
+<li><p>We wish to test the hypothesis <span class="math inline">\(H_0 : p = .8\)</span> versus the alternative, <span class="math inline">\(H_a : p &lt; .8\)</span>.</p></li>
+<li><p>Assume that the critical region <span class="math inline">\(\{y \le 12\}\)</span> is used and that the truth is that <span class="math inline">\(p=0.6\)</span> (so <span class="math inline">\(H_0\)</span> is false).</p></li>
+<li><p>Calculate <span class="math inline">\(\beta\)</span>.</p></li>
+</ul>
 </section>
 <section id="type-i-and-type-ii-errors" class="slide level2">
 <h2>Type I and type II errors</h2>
 
-<img data-src="15-errors-power_files/figure-revealjs/unnamed-chunk-9-1.svg" class="quarto-figure quarto-figure-center r-stretch" style="width:73.0%"></section>
+<img data-src="15-errors-power_files/figure-revealjs/unnamed-chunk-6-1.svg" class="quarto-figure quarto-figure-center r-stretch" style="width:73.0%"></section>
 <section id="type-i-and-type-ii-errors-1" class="slide level2">
 <h2>Type I and type II errors</h2>
 
 <!-- Smaller Type I error rate $\implies$ bigger Type II error rate -->
 <!-- We decreased $\alpha$ . How did the type II error rate change? -->
-<img data-src="15-errors-power_files/figure-revealjs/unnamed-chunk-10-1.svg" class="quarto-figure quarto-figure-center r-stretch" style="width:73.0%"></section>
-<section id="type-i-and-type-ii-errors-2" class="slide level2">
-<h2>Type I and type II errors</h2>
-
-<img data-src="15-errors-power_files/figure-revealjs/unnamed-chunk-11-1.svg" class="quarto-figure quarto-figure-center r-stretch" style="width:73.0%"></section>
+<img data-src="15-errors-power_files/figure-revealjs/unnamed-chunk-7-1.svg" class="quarto-figure quarto-figure-center r-stretch" style="width:73.0%"></section>
 <section id="effect-size-and-type-ii-errors" class="slide level2">
 <h2>Effect size and type II errors</h2>
 
+<img data-src="15-errors-power_files/figure-revealjs/unnamed-chunk-8-1.svg" class="quarto-figure quarto-figure-center r-stretch" style="width:73.0%"></section>
+<section id="effect-size-and-type-ii-errors-1" class="slide level2">
+<h2>Effect size and type II errors</h2>
+
 <!-- The effect size increased. How did the type II error rate change? -->
-<img data-src="15-errors-power_files/figure-revealjs/unnamed-chunk-12-1.svg" class="quarto-figure quarto-figure-center r-stretch" style="width:73.0%"></section>
-<section id="type-i-and-type-ii-errors-3" class="slide level2">
-<h2>Type I and type II errors</h2>
+<img data-src="15-errors-power_files/figure-revealjs/unnamed-chunk-9-1.svg" class="quarto-figure quarto-figure-center r-stretch" style="width:73.0%"></section>
+<section id="se-and-type-ii-error-rate" class="slide level2">
+<h2>SE and type II error rate</h2>
 
-<img data-src="15-errors-power_files/figure-revealjs/unnamed-chunk-13-1.svg" class="quarto-figure quarto-figure-center r-stretch" style="width:73.0%"></section>
-<section id="standard-error-and-type-ii-error-rate" class="slide level2">
-<h2>Standard error and type II error rate</h2>
+<img data-src="15-errors-power_files/figure-revealjs/unnamed-chunk-10-1.svg" class="quarto-figure quarto-figure-center r-stretch" style="width:73.0%"></section>
+<section id="se-and-type-ii-error-rate-1" class="slide level2">
+<h2>SE and type II error rate</h2>
 
-<!-- 10.88 -->
-<img data-src="15-errors-power_files/figure-revealjs/unnamed-chunk-14-1.svg" class="quarto-figure quarto-figure-center r-stretch" style="width:73.0%"></section>
-<section id="your-turn-5" class="slide level2">
-<h2>Your turn 5</h2>
-<p>Let <span class="math inline">\(Y= \#\)</span> of successes out of <span class="math inline">\(n=20\)</span> iid S/F trials</p>
-<p>We wish to test the hypothesis <span class="math inline">\(H_0 : p = .8\)</span> versus the alternative, <span class="math inline">\(H_A : p &lt; .8\)</span>.</p>
-<p>Assume that the rejection region <span class="math inline">\(\{y \le 12\}\)</span> is used.</p>
-<p>Find the power of the test if <span class="math inline">\(p=0.6\)</span>.</p>
-</section>
-<section id="power-curve" class="slide level2">
-<h2>Power curve</h2>
-<p>Plot of power against different alternatives for the parameter</p>
-<p>Other aspects of the test can also be explored (e.g., sample size)</p>
-
-<img data-src="15-errors-power_files/figure-revealjs/unnamed-chunk-15-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:55.0%"></section>
+<img data-src="15-errors-power_files/figure-revealjs/unnamed-chunk-11-1.svg" class="quarto-figure quarto-figure-center r-stretch" style="width:73.0%"></section>
 <section id="power" class="slide level2">
 <h2>Power</h2>
+<p><span class="math display">\[
+\text{Power} = P(\text{Reject } H_0 |H_0 \text{ is false}) = 1 - \beta
+\]</span></p>
+<ul>
+<li><p>Statisticians often talk about the power of a test rather than type II error</p></li>
+<li><p>Good tests have high power</p></li>
+</ul>
+</section>
+<section id="your-turn-5" class="slide level2">
+<h2>Your turn 5</h2>
+<ul>
+<li><p>Let <span class="math inline">\(Y= \#\)</span> of successes out of <span class="math inline">\(n=20\)</span> iid S/F trials; thus, <span class="math inline">\(Y \sim \text{Binom}(n=20,p)\)</span>.</p></li>
+<li><p>We wish to test the hypothesis <span class="math inline">\(H_0 : p = .8\)</span> versus the alternative, <span class="math inline">\(H_a : p &lt; .8\)</span>.</p></li>
+<li><p>Assume that the critical region <span class="math inline">\(\{y \le 12\}\)</span> is used and that the truth is that <span class="math inline">\(p=0.6\)</span> (so <span class="math inline">\(H_0\)</span> is false).</p></li>
+<li><p>Calculate the power of the test.</p></li>
+</ul>
+</section>
+<section id="power-and-alpha" class="slide level2">
+<h2>Power and <span class="math inline">\(\alpha\)</span></h2>
+
+<img data-src="15-errors-power_files/figure-revealjs/unnamed-chunk-12-1.svg" class="quarto-figure quarto-figure-center r-stretch" style="width:73.0%"></section>
+<section id="power-and-alpha-1" class="slide level2">
+<h2>Power and <span class="math inline">\(\alpha\)</span></h2>
+
+<img data-src="15-errors-power_files/figure-revealjs/unnamed-chunk-13-1.svg" class="quarto-figure quarto-figure-center r-stretch" style="width:73.0%"></section>
+<section id="power-and-effect-size" class="slide level2">
+<h2>Power and effect size</h2>
+
+<img data-src="15-errors-power_files/figure-revealjs/unnamed-chunk-14-1.svg" class="quarto-figure quarto-figure-center r-stretch" style="width:73.0%"></section>
+<section id="power-and-effect-size-1" class="slide level2">
+<h2>Power and effect size</h2>
+
+<img data-src="15-errors-power_files/figure-revealjs/unnamed-chunk-15-1.svg" class="quarto-figure quarto-figure-center r-stretch" style="width:73.0%"></section>
+<section id="power-and-se" class="slide level2">
+<h2>Power and SE</h2>
 
 <img data-src="15-errors-power_files/figure-revealjs/unnamed-chunk-16-1.svg" class="quarto-figure quarto-figure-center r-stretch" style="width:73.0%"></section>
-<section id="power-1" class="slide level2">
-<h2>Power</h2>
+<section id="power-and-se-1" class="slide level2">
+<h2>Power and SE</h2>
 
 <img data-src="15-errors-power_files/figure-revealjs/unnamed-chunk-17-1.svg" class="quarto-figure quarto-figure-center r-stretch" style="width:73.0%"></section>
-<section id="power-2" class="slide level2">
-<h2>Power</h2>
+<section id="power-curves" class="slide level2">
+<h2>Power curves</h2>
+<p>Plot of power against different alternatives for the parameter</p>
+<div class="columns">
+<div class="column" style="width:40%;">
+<p>Example:</p>
+<ul>
+<li><span class="math inline">\(H_0 : p = .8\)</span> vs.&nbsp;<span class="math inline">\(H_A : p &lt; .8\)</span></li>
+<li><span class="math inline">\(Y \sim \text{Binom}(n=20,p)\)</span></li>
+<li>critical region <span class="math inline">\(\{y \le 12\}\)</span></li>
+</ul>
+</div><div class="column" style="width:60%;">
+<p><br></p>
+<div class="cell" data-layout-align="right">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-right">
+<figure>
+<p><img data-src="15-errors-power_files/figure-revealjs/unnamed-chunk-18-1.png" class="quarto-figure quarto-figure-right" style="width:90.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+</div></div>
+</section>
+<section id="power-curves-1" class="slide level2">
+<h2>Power curves</h2>
+<p>One-sample t-test</p>
+<ul>
+<li><span class="math inline">\(H_0: \mu = 5\)</span> vs.&nbsp;<span class="math inline">\(H_a: \mu \ne 5\)</span></li>
+<li>Assuming <span class="math inline">\(s=2\)</span></li>
+</ul>
 
-<img data-src="15-errors-power_files/figure-revealjs/unnamed-chunk-18-1.svg" class="quarto-figure quarto-figure-center r-stretch" style="width:73.0%"></section>
-<section id="power-3" class="slide level2">
-<h2>Power</h2>
-
-<img data-src="15-errors-power_files/figure-revealjs/unnamed-chunk-19-1.svg" class="quarto-figure quarto-figure-center r-stretch" style="width:73.0%"></section>
+<img data-src="15-errors-power_files/figure-revealjs/unnamed-chunk-19-1.png" class="quarto-figure quarto-figure-center r-stretch" style="width:60.0%"></section>
 <section id="test-planning" class="slide level2">
 <h2>Test planning</h2>
 <p>If planning a hypothesis test <strong>before</strong> data collection, you can determine the necessary sample size to achieve a specified power when using a set significance level/rejection region.</p>

@@ -1,0 +1,49 @@
+---
+title: "Avoiding testing missteps"
+subtitle: "Stat 250"
+author: "[Click here for PDF version](pdfs/16-multiple-testing.pdf)"
+format:
+  revealjs: 
+    theme: [default, slide-styles.scss]
+code-line-numbers: false
+code-annotations: hover
+---
+
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+
+library(ggformula)
+library(tidyverse)
+library(ggthemes)
+yt <- 0
+```
+
+
+# Statistical significance <br> ≠ <br> Practical importance
+
+
+# If you run multiple tests, make adjustments
+
+
+## Example
+
+Suppose you want to run $k$ hypothesis tests, each at the $\alpha = 0.05$ significance level. 
+
+Assume that the tests are independent.
+
+What is the overall probability of making a type I error?
+
+
+## Sidak correction for $\alpha$
+
+Let $\alpha$ be the desired type I error rate for $k$ tests.
+
+Use $\alpha^* = 1 - (1-\alpha)^{1/k}$ as the significance level for each test.
+
+# Don't p-hack
+
+
+##
+
+<iframe width="1120" height="730" src="https://www.youtube.com/embed/FLNeWgs2n_Q" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>

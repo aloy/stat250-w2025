@@ -1,0 +1,278 @@
+---
+title: "Chi-squared tests"
+subtitle: "Stat 250"
+author: "[Click here for PDF version](pdfs/17-chi-squared-test.pdf)"
+format:
+  revealjs: 
+    theme: [default, slide-styles.scss]
+code-line-numbers: false
+code-annotations: hover
+---
+
+
+```{r setup, include=FALSE}
+library(ggformula)
+library(mosaic)
+library(tidyr)
+library(ggthemes)
+library(gt)
+library(janitor)
+data("happy", package = "ggmosaic")
+happy2018 <- filter(happy, year == 2018) %>%
+  drop_na(happy, finrela)
+yt <- 0
+```
+
+## Can money buy you happiness?
+:::{style="font-size: 90%;"}
+The General Social Survey (GSS) is a sociological survey used to collect data on demographic characteristics and attitudes of residents of the United States. We'll consider two questions:
+
+  *  Compared with American families in general, would you say your family income is far below average, below average, average, above average, or far above average?
+
+  * Taken all together, how would you say things are these days—would you say that you are very happy, pretty happy, or not too happy?
+:::
+
+## Can money buy you happiness?
+
+```{r echo=FALSE, fig.height = 4.5, fig.width = 7, out.width = "90%", fig.align='center'}
+gf_bar(~finrela, data = happy2018, fill = ~happy, position = "fill") +
+  xlab("Family income") +
+  theme_minimal() +
+  scale_fill_colorblind()
+```
+
+## Happiness contingency table
+
+
+How can we explore whether opinion on income and happiness are associated?
+
+
+```{r echo=FALSE}
+tabyl(happy2018, happy, finrela) |>
+  adorn_totals(where = c("row", "col")) |>
+  gt() |>
+  tab_options(table.font.size = 24)
+```
+
+
+R: 
+
+```{r}
+#| eval: false
+#| echo: true
+tabyl(happy2018, happy, finrela) |> 
+  adorn_totals(where = c("row", "col"))
+```
+
+:::{.footer}
+`tabyl()` and `adorn_totals()` are in the `{janitor}` package
+:::
+
+
+## Test statistic
+
+$H_0:$ the variables are independent
+
+<br>
+
+What would the contingency table look like under $H_0$?
+
+:::{.fragment}
+
+```{r echo=FALSE}
+chisq.test(happy2018$happy, happy2018$finrela)$expect |>
+  as.data.frame() |>
+  tibble::rownames_to_column(var = "happy") |>
+  gt() |>
+  tab_options(table.font.size = 24)
+```
+
+:::
+
+## Test statistic
+
+:::{style="font-size: 90%;"}
+How can we compare what we observe to what would be expected under $H_0$?
+
+**Observed:**
+:::
+
+```{r echo=FALSE}
+tabyl(happy2018, happy, finrela) |>
+  adorn_totals(where = c("row", "col")) |>
+  gt() |>
+  tab_options(table.font.size = 24)
+```
+
+:::{style="font-size: 90%;"}
+**Expected:**
+:::
+
+```{r echo=FALSE}
+chisq.test(happy2018$happy, happy2018$finrela)$expect |>
+  as.data.frame() |>
+  tibble::rownames_to_column(var = "happy") |>
+  adorn_totals(where = c("row", "col")) |>
+  gt() |>
+  fmt_integer(rows = 4, sep_mark = "") |>
+  tab_options(table.font.size = 24)
+```
+
+
+
+## Permutation test
+
+:::{style="font-size: 90%;"}
+1. Store the data in a table: one row per observation, one column per variable. 
+
+2. Calculate a test statistic for the original data. 
+
+3. **Repeat** 
+  
+    + Randomly permute the rows in one of the columns. 
+    + Calculate the test statistic for the permuted data. 
+
+    **Until** we have enough samples 
+
+4. Calculate the $p$-value as the fraction of times the random statistics exceed the original statistic. 
+:::
+
+
+## Permutation test setup
+
+Calculate the observed test statistic
+```{r}
+#| echo: true
+# Have mosaic package loaded
+observed_table <- tally(~ happy + finrela, data = happy2018)
+observed <- chisq(observed_table)
+```
+
+<br>
+
+Remove any missing values on variables of interest
+```{r}
+#| echo: true
+library(tidyr) # for drop_na()
+happy_complete <- drop_na(happy2018, happy, finrela)
+
+# Extract columns of interest
+happy <- happy_complete$happy
+finrela <- happy_complete$finrela
+```
+
+##
+### Construct the permutation distribution 
+
+```{r cache=TRUE}
+#| echo: true
+set.seed(55057)
+N <- 10^4 - 1
+result <- numeric(N)
+for(i in 1:N) {
+  finrela_perm <- sample(finrela)
+  perm_table <- tally(~happy + finrela_perm)
+  result[i] <- chisq(perm_table)
+}
+```
+
+
+## Permutation distribution
+
+```{r echo=FALSE, fig.height = 2.5, fig.width = 4, out.width = "70%", fig.align='center'}
+gf_histogram(~result, bins = 50, xlab = "Chi-squared statistics") + 
+  theme_classic()
+```
+
+
+## _p_-value
+
+```{r echo=FALSE, fig.height = 2.5, fig.width = 4, out.width = "60%", fig.align='center'}
+gf_histogram(~result, bins = 50, xlab = "Chi-squared statistics") %>%
+  gf_vline(xintercept = ~observed, color = "darkorange") +
+  theme_classic()
+```
+
+```{r collapse=TRUE}
+#| echo: true
+(sum(result >= observed) + 1) / (N + 1)
+```
+
+## Chi-squared distribution
+
+:::{style="font-size: 90%;"}
+A random variable follows a $\chi^2_m$ distribution if it has PDF
+
+$$f(x|m) = \dfrac{1}{2^{m/2} \Gamma(m/2)} x^{m/2 - 1} e^{-x/2}, \ x>0.$$
+:::
+```{r fig.height = 4, fig.width = 5, echo=FALSE, out.width = "40%", fig.align='center'}
+x <- seq(0, 20, by = 0.1)
+matplot(x, cbind(dchisq(x, df = 1), dchisq(x, df = 3), dchisq(x, df = 5), dchisq(x, df = 9)), type="l", lwd =2, ylab = "f(x)", ylim = c(0, 0.6))
+```
+
+##
+### Chi-squared reference distribution
+
+```{r echo=FALSE, fig.height = 2.5, fig.width = 4, out.width = "70%", fig.align='center'}
+gf_dhistogram(~result, data = data.frame(result = result), xlab = "Chi-squared statistics", bins = 50) %>%
+  gf_function(
+    fun = dchisq,
+    args = list(df = 8),
+    color = "steelblue",
+    size = 1
+  ) +
+  theme_classic()
+```
+
+
+##
+### Simulation vs. model-based results
+
+<br>
+
+**Chi-squared test**
+
+```{r}
+#| echo: true
+1 - pchisq(observed, df = (3 - 1) * (5 - 1))
+```
+
+<br>
+
+**Permutation test**
+
+```{r include=FALSE}
+options(scipen=999)
+```
+
+
+```{r}
+#| echo: true
+(sum(result >= observed) + 1) / (N + 1)
+```
+
+
+
+## Caution
+
+The $\chi^2$ distribution provides a reasonable approximation of the null distribution **as long as the sample size is "large enough"**
+
+Common guidelines:
+
+- "Cochran's rule:" All of the cells have **expected counts** > 5
+
+- All expected counts are at least 1 and no more than 20% of cells have **expected counts** < 5
+
+
+
+Use a permutation test if the expected counts aren't large enough
+
+
+
+## Your turn
+
+Work through the example on climate change action by generation with your neighbors.
+
+<br>
+
+R code for carrying out chi-squared tests is included on the worksheet

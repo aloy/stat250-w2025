@@ -1,0 +1,429 @@
+---
+title: "Correlation and Regression"
+subtitle: "Stat 250"
+author: "[Click here for PDF version](pdfs/18-corr-regression.pdf)"
+format:
+  revealjs: 
+    theme: [default, slide-styles.scss]
+code-line-numbers: false
+code-annotations: hover
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+library(mosaic)
+library(patchwork)
+mpg <- read.csv(file = "https://github.com/math430-lu/data/raw/master/mpg.csv")
+```
+
+
+## Overview: Fuel Economy Data
+
+- Many factors go into determining what gas mileage a car will achieve
+
+- For now, we will focus on the weight of a car
+
+- It's generally understood that heavier cars will get worse fuel economy, but it is not clear how much of an increase in weight will lead to a decrease in fuel economy
+
+
+
+## Overview: Fuel Economy Data
+
+::::{.columns}
+:::{.column width="50%"}
+```{r collapse = TRUE}
+#| echo: true
+head(mpg)
+
+dim(mpg)
+```
+:::
+:::{.column width="50%"}
+Notation:
+
+$y_i =$ MPG for i<sup>th</sup> car
+
+$x_i =$ weight for i<sup>th</sup> car
+
+$i = 1,\ldots, n$
+:::
+::::
+
+
+
+# Exploratory Data Analysis
+
+
+
+## Scatterplots
+
+:::{.column width="30%"}
+Form?
+
+<br>
+
+Direction?
+
+<br>
+
+Strength?
+
+<br>
+
+Outlier/unusual features?
+:::
+
+:::{.column width="70%"}
+
+```{r fig.height=3.5, fig.width=3.5, out.width = "55%", fig.align='center'}
+#| echo: true
+gf_point(mpg ~ weight, data = mpg,
+         xlab = "Weight (lbs)",
+         ylab = "Fuel economy (mpg)")
+```
+:::
+
+
+
+## Strength of association
+
+Perception of the strength of the association can change just by changing the scale on the vertical axis
+
+```{r fig.height=3.5, fig.width=7, echo=FALSE, fig.align='center', out.width = "75%"}
+sp1 <- gf_point(mpg ~ weight, data = mpg, xlab = "Weight (lbs)", ylab = "Fuel economy (mpg)")
+
+sp2 <- gf_point(mpg ~ weight, data = mpg, xlab = "Weight (lbs)", ylab = "Fuel economy (mpg)") +
+     ylim(c(0, 60))
+
+sp1 + sp2
+```
+
+
+
+## Covariance
+
+
+```{r dev='svg', fig.height=3.5, fig.width=3.5, echo=FALSE, out.width = "45%"}
+xbar <- mean(mpg$weight)
+ybar <- mean(mpg$mpg)
+gf_point(mpg ~ weight, data = mpg, xlab = "Weight (lbs)", ylab = "Fuel economy (mpg)") %>%
+gf_vline(xintercept = ~xbar, color = "blue") %>%
+gf_hline(yintercept= ~ybar, color = "blue")
+```
+
+
+
+
+## Correlation
+
+
+```{r dev='svg', fig.height=3.5, fig.width=3.5, echo=FALSE, out.width = "45%"}
+xbar <- mean(mpg$weight)
+ybar <- mean(mpg$mpg)
+gf_point(mpg ~ weight, data = mpg, xlab = "Weight (lbs)", ylab = "Fuel economy (mpg)") %>%
+gf_vline(xintercept = ~xbar, color = "blue") %>%
+gf_hline(yintercept= ~ybar, color = "blue")
+```
+
+
+
+
+## Caution
+
+::::{.columns}
+:::{.column width="50%"}
+Correlation only measures the strength/direction of **linear relationships**
+
+
+```{r, collapse = TRUE}
+#| echo: true
+x <- -5:5
+y <- x^2
+cor(x, y)
+```
+:::
+
+:::{.column width="50%"}
+```{r, echo=FALSE, message=FALSE, dev='svg', fig.height=3.5, fig.width=3.5, out.width = "90%", fig.align='center'}
+library(ggplot2)
+qplot(x, y) +
+  geom_smooth(method = "lm", se = FALSE) +
+  theme_light()
+```
+:::
+::::
+
+
+## Caution
+
+Correlation is **sensitive to outliers**
+
+```{r, echo=FALSE, message=FALSE, fig.width=8 , fig.height=4, dev='svg', fig.align='center', out.width = "77%"}
+library(gridExtra)
+p1 <- qplot(x3, y3, data = anscombe) +
+  xlab("x") + ylab("y") + scale_y_continuous(limits=c(5,13)) +
+  annotate("text", label = "r = 0.816", x = 6, y = 12, size = 6) +
+  theme_light()
+
+p2 <- qplot(x3, y3, data = subset(anscombe, y3 < 9)) +
+  xlab("x") + ylab("y") + scale_y_continuous(limits=c(5,13)) +
+  annotate("text", label = "r = 0.999", x = 6, y = 12, size = 6) +
+  theme_light()
+
+grid.arrange(p1, p2, nrow = 1)
+```
+
+
+
+## Model selection
+
+::::{.columns}
+:::{.column width="50%"}
+```{r fig.height=3.5, fig.width=3.5, echo=FALSE, out.width = "95%", fig.align='center'}
+gf_point(mpg ~ weight, data = mpg, xlab = "Weight (lbs)", ylab = "Fuel economy (mpg)")
+```
+:::
+
+:::{.column width="50%"}
+<br>
+<br>
+
+$y_i = f(x_i) + \varepsilon_i$
+
+<br>
+
+What is a good model for the fuel economy data?
+:::
+::::
+
+
+
+# Simple Linear Regression
+
+
+
+## Predicting fuel economy
+
+:::{style="font-size: 90%;"}
+**Task:** predict the fuel economy of a vehicle based on its weight---i.e. find $\widehat{\alpha}$ and $\widehat{\beta}$
+
+$$\widehat{y}_i = \widehat{\alpha} + \widehat{\beta}x_i$$
+
+**Approach:**  minimize the residual sums of squares
+
+$$RSS = \sum_{i=1}^n \left(y_i - a - b x_i \right)^2$$
+
+* This is called least squares (LS) estimation
+:::
+
+## Linear models in R
+
+`lm` is our workhorse function
+
+```{r}
+#| echo: true
+mod <- lm(mpg ~ weight, data = mpg)
+```
+
+* The formula is of the form `response ~ predictor`
+
+* The result is an object of class `lm`
+
+```{r collapse=TRUE}
+#| echo: true
+names(mod)
+```
+
+
+
+## Linear models in R
+
+You have a few options to the results
+
+1. **Print**: print `mod` to see the estimated regression coefficients
+
+1. **Summary**: `summary(mod)` displays the most useful information about the model
+
+1. **Attributes**: extract the attribute of interest using the `$` operator
+
+
+## `summary()`
+
+
+```{r}
+#| echo: true
+summary(mod)
+```
+
+
+
+## Interpretations
+
+$\widehat{\boldsymbol{\beta}}$
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
+$\widehat{\boldsymbol{\alpha}}$
+
+
+
+## Making predictions
+
+Once we have our estimated regression coefficients, $\widehat{\alpha}$ and $\widehat{\beta}$, obtaining a prediction is easy.
+
+
+
+**Example** predict the MPG for a car weighing 2,500 lbs
+
+
+
+$$\widehat{y}=\widehat{\alpha}+\widehat{\beta}(2500)$$
+
+
+
+In R, we use the `predict` function
+
+```{r collapse = TRUE}
+#| echo: true
+predict(mod, newdata = data.frame(weight = 2500))
+```
+
+
+
+## The full SLR model
+
+* LS only assumes that there is a linear relationship between $x$ and $y$
+
+* Additional assumptions are needed to understand the uncertainty of our predictions
+
+* The SLR model can be written in a few forms
+
+    + $Y_i = \alpha + \beta x_i + \varepsilon_i$ where $\varepsilon\overset{iid}{\sim} N(0, \sigma^2)$
+
+    + $Y_i \overset{iid}{\sim} N(\alpha + \beta x_i, \sigma^2)$
+
+## 
+
+
+```{r echo=FALSE, fig.width = 4, fig.height = 4, message=FALSE, warning=FALSE, out.width = "55%", fig.align='center', dev = "svg"}
+set.seed(0)
+dat <- data.frame(x=(x=runif(10000, 0, 50)),
+                  y=rnorm(10000, 10*x, 100))
+
+## breaks: where you want to compute densities
+breaks <- seq(0, max(dat$x), len=5)
+dat$section <- cut(dat$x, breaks)
+
+## Get the residuals
+dat$res <- residuals(lm(y ~ x, data=dat))
+
+## Compute densities for each section, flip the axes, add means of sections
+## Note: densities need to be scaled in relation to section size (2000 here)
+dens <- do.call(rbind, lapply(split(dat, dat$section), function(x) {
+  d <- density(x$res, n=5000)
+  res <- data.frame(x=max(x$x)- d$y*1000, y=d$x+mean(x$y))
+  res <- res[order(res$y), ]
+  ## Get some data for normal lines as well
+  xs <- seq(min(x$res), max(x$res), len=5000)
+  res <- rbind(res, data.frame(y=xs + mean(x$y),
+                               x=max(x$x) - 1000*dnorm(xs, 0, sd(x$res))))
+  res$type <- rep(c("empirical", "normal"), each=5000)
+  res
+}))
+dens$section <- rep(levels(dat$section), each=10000)
+
+ggplot(dat, aes(x, y)) +
+  geom_point(size = 0.1, alpha = 0.3) +
+  geom_smooth(method="lm", fill=NA, lwd=2) +
+  geom_path(data=dens[dens$type=="normal",], aes(x, y, group=section),
+            color="orange", lwd=1.1) +
+  theme_bw() +
+  geom_vline(xintercept=breaks, lty=2) +
+  ggtitle("SLR model")
+```
+
+
+
+
+## Regression conditions/assumptions
+
+1. **Linearity**: $E(Y_i|X = x_i) = \mu_i = \alpha + \beta x_i$
+
+1. **Independence**: $\varepsilon_1, \ldots, \varepsilon_n$ are independent
+
+1. **Constant error variance**: $Var(\varepsilon_1) = \cdots = Var(\varepsilon_n) = \sigma^2$
+
+1. **Normal error terms**: $\varepsilon_i \sim N(0, \sigma^2)$
+
+
+
+## ML estimation
+
+:::{style="font-size: 90%;"}
+We cannot obtain an estimate of $\sigma^2$ through LS, so instead we can use maximum likelihood (ML)
+
+<br>
+
+To do this, we simply maximize the likelihood function
+
+$$L(\alpha, \beta, \sigma) = \prod_{i=1}^n f(Y_i | x_i, \alpha, \beta, \sigma) = \prod_{i=1}^n \dfrac{1}{\sigma \sqrt{2\pi}} e^{-(Y_i - \alpha - \beta x_i)/2\sigma^2}$$
+
+<br>
+
+Idea: finding the values of $\alpha$, $\beta$, and $\sigma$ that make our data most likely
+
+:::
+
+## ML estimation
+
+:::::{style="font-size: 85%;"}
+It's easier to work with the log likelihood
+
+$\ell(\alpha, \beta, \sigma) =  \sum_{i=1}^n \log(\sigma) - \dfrac{1}{2}\log(2\pi) - (Y_i - \alpha - \beta x_i)^2 / 2 \sigma^2$
+
+
+::::{.columns}
+:::{.column width="50%"}
+$\dfrac{\partial \ell}{\partial \alpha} = \dfrac{1}{\sigma^2} \displaystyle \sum_{i=1}^n (Y_i - \alpha - \beta x_i)$
+:::
+:::{.column width="50%"}
+$\dfrac{\partial \ell}{\partial \beta} = \dfrac{1}{\sigma^2} \displaystyle \sum_{i=1}^n (Y_i - \alpha - \beta x_i)x_i$
+:::
+::::
+
+$\dfrac{\partial \ell}{\partial \sigma} = \dfrac{-n}{\sigma} - \dfrac{1}{\sigma^3} \displaystyle \sum_{i=1}^n (y_i - \alpha - \beta x_i)^2 = \dfrac{1}{\sigma^3} \left( n\sigma^2 - \displaystyle \sum_{i=1}^n e^2_i \right)$
+
+where $e_i = Y_i - (\alpha + \beta x_i) = Y_i - \widehat{Y}_i$
+
+:::::
+
+
+## ML estimation
+
+:::::{style="font-size: 90%;"}
+Setting the derivatives to 0 and solving yields
+
+$\widehat{\alpha} = \bar{y} - \widehat{\beta} \bar{x}$ 
+
+$\widehat{\beta} = \dfrac{\sum(x_i - \bar{x})(Y_i - \bar{Y})}{\sum(x_i - \bar{x})^2}$
+
+$\widehat{\sigma}^2 = \dfrac{\sum e_i^2}{n}$, where $e_i = y_i - (\widehat{\alpha} + \widehat{\beta}x_i)$
+
+$\widehat{\sigma}^2$ is biased, so we must make an adjustment to obtain an unbiased estimator
+
+$$S^2 = \dfrac{\sum e^2_i}{n - 2}$$
+:::::
+
+
+## Properties of our estimators
+
+* $\widehat{\alpha}$ and $\widehat{\beta}$ are **unbiased estimates** of $\alpha$ and $\beta$
+
+* $\widehat{\alpha}$ and $\widehat{\beta}$ are the **best linear unbiased estimates** (BLUE); that is, they have the smallest variance of all linear unbiased estimates
+
+* $S^2$ is an unbiased estimate of $\sigma^2$
+

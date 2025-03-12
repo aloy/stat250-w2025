@@ -1,0 +1,420 @@
+---
+title: "Overview of Bayesian inference"
+subtitle: "Stat 250"
+author: "[Click here for PDF version](pdfs/19-intro-bayes.pdf)"
+format:
+  revealjs: 
+    theme: [default, slide-styles.scss]
+code-line-numbers: false
+code-annotations: hover
+---
+
+```{r setup, include=FALSE}
+library(mosaic)
+library(patchwork)
+library(fontawesome)
+library(gt)
+```
+
+# A Bayesian "personality quiz"
+
+:::{.footer}
+Adapted from *Bayes Rules! An Introduction to Bayesian Modeling with R* 
+:::
+
+
+
+## Question 1
+
+When flipping a fair coin, we say that "the probability of flipping Heads is 0.5." How do you interpret this probability?
+
+1. If I flip this coin over and over, roughly 50% will be Heads.
+
+2. Heads and Tails are equally plausible.
+
+3. Both a and b make sense.
+
+
+## Question 2
+
+
+An election is coming up and a pollster claims that "candidate A has a 0.9 probability of winning." How do you interpret this probability?
+
+
+1. If we observe the election over and over, candidate A will win roughly 90% of the time.
+
+2. Candidate A is much more likely to win than to lose.
+
+3. The pollster's calculation is wrong. Candidate A will either win or lose, thus their probability of winning can only be 0 or 1.
+
+
+## Question 3
+
+:::{style="font-size: 85%;"}
+Consider two claims. 
+
+- Zuofu claims that he can predict the outcome of a coin flip. To test his claim, you flip a fair coin 10 times and he correctly predicts all 10. 
+- Kavya claims that she can distinguish natural and artificial sweeteners. To test her claim, you give her 10 sweetener samples and she correctly identifies each. 
+
+In light of these experiments, what do you conclude?
+
+1. You're more confident in Kavya's claim than Zuofu's claim.
+
+2. The evidence supporting Zuofu's claim is just as strong as the evidence supporting Kavya's claim.
+
+:::
+
+## Question 4
+
+
+Suppose that during a recent doctor's visit, you tested positive for a very rare disease. If you only get to ask the doctor one question, which would it be?
+
+1. What's the chance that I actually have the disease?
+
+2. If in fact I don't have the disease, what's the chance that I would've gotten this positive test result?
+
+
+## Tally your points
+
+
+::::{.columns}
+:::{.column width="50%"}
+Question 1:
+
+
+- 1 = 1 points
+- 2 = 3 points
+- 3 = 2 points
+
+
+Question 2:
+
+- 1 = 1 points
+- 2 = 3 points
+- 3 = 1 points
+:::
+:::{.column width="50%"}
+Question 3:
+
+- 1 = 3 points
+- 2 = 1 points
+<br>
+<br>
+
+Question 4:
+
+
+- 1 = 3 points
+- 2 = 1 points
+:::
+::::
+
+
+
+## What does your score mean?
+
+- 4-5 $\rightarrow$ you're more of a frequentist thinker 
+
+- 6-8 $\rightarrow$ you see the merit in both (a pragmatist?)
+
+- 9-12 $\rightarrow$ you're more of a Bayesian thinker 
+
+
+
+
+##
+### Question 1: Interpreting probability
+
+
+When flipping a fair coin, we say that "the probability of flipping Heads is 0.5." How do you interpret this probability?
+
+1. (Frequentist) If I flip this coin over and over, roughly 50% will be Heads.
+
+2. (Bayesian) Heads and Tails are equally plausible.
+
+3. Both a and b make sense.
+
+
+
+##
+### Question 2: Interpreting probability
+
+
+An election is coming up and a pollster claims that "candidate A has a 0.9 probability of winning." How do you interpret this probability?
+
+
+1. (Frequentist) If we observe the election over and over, candidate A will win roughly 90% of the time.
+
+2. (Bayesian) Candidate A is much more likely to win than to lose.
+
+3. (Rabid frequentist) The pollster's calculation is wrong. Candidate A will either win or lose, thus their probability of winning can only be 0 or 1.
+
+
+
+##
+### Question 3: Balancing prior info and observed data
+
+
+:::{style="font-size: 85%;"}
+Consider two claims. 
+
+- Zuofu claims that he can predict the outcome of a coin flip. To test his claim, you flip a fair coin 10 times and he correctly predicts all 10. 
+- Kavya claims that she can distinguish natural and artificial sweeteners. To test her claim, you give her 10 sweetener samples and she correctly identifies each. 
+
+In light of these experiments, what do you conclude?
+
+
+1. (Bayesian) You're more confident in Kavya's claim than Zuofu's claim.
+
+2. (Frequentist) The evidence supporting Zuofu's claim is just as strong as the evidence supporting Kavya's claim.
+:::
+
+
+##
+### Question 4: Asking questions
+
+
+Suppose that during a recent doctor's visit, you tested positive for a very rare disease. If you only get to ask the doctor one question, which would it be?
+
+1. (Bayesian) What's the chance that I actually have the disease?
+
+2. (Frequentist) If in fact I don't have the disease, what's the chance that I would've gotten this positive test result?
+
+
+
+
+# A first Bayesian example
+
+##
+
+#### What proportion of Carleton students do you believe pulled at least one all-nighter during Fall term in order to get their school work done? Choose one of the options:
+
+<br>
+
+0,   0.1,   0.2,   0.3,   0.4,   0.5,   0.6,   0.7,   0.8,   0.9,   1
+
+
+
+
+##
+### Overview of the Bayesian method
+
+
+
+1. Choose (or elicit) a probability distribution to express the pre-data belief about the parameter of interest, $\theta$.
+
+
+2. Choose a model for the data given $\theta$.
+
+
+3. Observe data, $Y_1, \ldots, Y_n$.
+
+
+4. Update the belief about $\theta$ by combining the prior belief and the data.
+
+
+5. Draw inferences using this updated belief about $\theta$.
+
+
+##
+
+#### What proportion of all Carleton students pulled at least one all-nighter to get school work done last term?
+
+- Suppose we (incorrectly) assume that this class is representative of all Carleton students
+
+- **Prior belief:** drawn from our survey
+
+- **Data:** number of students in this class who pulled at least one all-nighter last term
+
+
+
+## Deriving the posterior
+
+
+
+```{r echo=FALSE}
+# Prior based on class consensus
+prior_values <- seq(0, 1, by = 0.1)
+prior_probs  <- c(1, 7, 4, 4, 1, 4, 0, 1, 0, 0, 0) / sum(c(1, 7, 4, 4, 1, 4, 0, 1, 0, 0, 0))
+
+# Data
+n <- 21 # sample size
+y <- 5  # obs. no. of all-nighters
+
+# Binomial likelihood
+binom_lik <- dbinom(y, n, p = prior_values)
+
+# Updating prior belief
+joint_prob <- prior_probs * binom_lik  # prior x likelihood
+marginal_y <- sum(joint_prob)          # P(Y = y)
+posterior <- joint_prob / marginal_y   # posterior PMF of p | y
+
+# Formatting for printing
+post_df <- data.frame(p = prior_values, prior = prior_probs, likelihood = binom_lik, joint_prob, 
+                      posterior)
+# colnames(post_df)[4] <- "prior x likelihood"
+
+gt(post_df) |>
+  fmt_number(decimals = 6) |>
+  cols_label(p = md("**p**"),
+             prior = md("**prior**"),
+             likelihood = md("**likelihood**"),
+             joint_prob = md("**prior x likelihood**"),
+             posterior = md("**posterior**")
+             ) |>
+  tab_options(table.font.size = 34)
+```
+
+
+
+## Updating belief in `r fa("r-project")`
+
+
+```{r}
+#| echo: true
+# Prior based on class consensus
+prior_values <- seq(0, 1, by = 0.1)
+prior_probs  <- c(1, 7, 4, 4, 1, 4, 0, 1, 0, 0, 0) / 22
+
+# Data
+n <- 21 # sample size
+y <- 5  # obs. no. of all-nighters
+
+# Binomial likelihood
+binom_lik <- dbinom(y, n, p = prior_values)
+
+# Updating prior belief
+joint_prob <- prior_probs * binom_lik  # prior x likelihood
+marginal_y <- sum(joint_prob)          # P(Y = y)
+posterior  <- joint_prob / marginal_y  # posterior PMF of p | y
+
+# Formatting for printing
+post_df <- data.frame(prior_values, prior_probs, 
+                      joint_prob, posterior)
+```
+
+
+---
+
+## What have we accomplished?
+
+```{r fig.width = 5, fig.height = 3.5, echo=FALSE, out.width = "67%", fig.align='center'}
+gf_line(prior_probs ~ prior_values, color = "gray60") %>%
+  gf_point(prior_probs ~ prior_values, color = "gray60") %>%
+  gf_line(posterior ~ prior_values) %>%
+  gf_point(posterior ~ prior_values) %>%
+  gf_label(.5 ~ .3, label = "Posterior") %>%
+  gf_label(.32 ~ .37, label = "Prior", color = "gray60") +
+  theme_classic() +
+  labs(x = "p", y = "Probability")
+
+```
+
+
+## Beta distribution {background-image="img/Beta-priors.png" background-size=50% background-position="right"}
+
+
+:::{style="font-size: 80%;"}
+- $f(x | \alpha, \beta) = \frac{\Gamma(\alpha+\beta)}{\Gamma(\alpha) \Gamma(\beta)} x^{\alpha-1} (1-x)^{\beta-1}$
+
+- Parameter space: $\alpha>0$, $\beta>0$
+
+- Support: $0 < x < 1$
+:::
+
+:::{.footer}
+Image credit: Probability and Bayesian Modeling
+:::
+
+---
+
+
+## Beta priors
+
+1. **Flat prior (non-informative)**: Beta(1,1)
+
+2. **Data-augmentation prior**: <br> Beta(# prior successes, # prior failures)
+
+```{r fig.width = 3.5, fig.height = 2.5, echo=FALSE, fig.align='center', out.width = "50%"}
+gf_function(
+    fun = dbeta,
+    args = list(shape1 = 1, shape2 = 1),
+    xlim = c(0, 1),
+    linetype = ~"Beta(1, 1)"
+  ) %>%
+  gf_function(
+    fun = dbeta,
+    args = list(shape1 = 1, shape2 = 9),
+    linetype = ~"Beta(1, 9)"
+  ) +
+  scale_linetype("Prior") +
+  theme_classic() +
+  theme(legend.position = c(.8, .8)) +
+  labs(x = "x", y = "f(x)")
+```
+
+
+
+## Posterior distributions
+
+```{r fig.width = 8, fig.height = 3.5, echo=FALSE, fig.align='center', out.width = "100%", warning=FALSE}
+a_postf <- 1 + y
+b_postf <- 1 + (n-y)
+
+
+p1 <- gf_function(
+    fun = dbeta,
+    args = list(shape1 = 1, shape2 = 1),
+    xlim = c(0, 1),
+    color = "gray60"
+  ) %>%
+  gf_function(
+    fun = dbeta,
+    args = list(shape1 = a_postf, shape2 = b_postf),
+  ) +
+  labs(title = "Updating flat prior", x = "p", y = "f(p)") +
+  theme_classic() +
+  ylim(c(0, 8))
+
+
+a_postda <- 1 + y
+b_postda <- 9 + (n-y)
+p2 <- gf_function(
+    fun = dbeta,
+    args = list(shape1 = 1, shape2 = 9),
+    xlim = c(0, 1),
+    color = "gray60"
+  ) %>%
+  gf_function(
+    fun = dbeta,
+    args = list(shape1 = a_postda, shape2 = b_postda),
+  ) +
+  labs(title = "Updating D.A. prior", x = "p", y = "f(p)") +
+  theme_classic() +
+  ylim(c(0, 8))
+
+p1 + p2
+
+```
+
+
+
+
+## Credible intervals
+
+In the Bayesian paradigm we treat the parameter as a random variable, so we can make probabilistic statements using the posterior distribution.
+
+<br>
+
+Using the flat prior...
+```{r, collapse=TRUE}
+#| echo: true
+qbeta(c(.025, .975), 1 + y, 1 + (n - y))
+```
+<br>
+Using the D.A. prior
+```{r collapse=TRUE}
+#| echo: true
+qbeta(c(.025, .975), 1 + y, 9 + (n - y))
+```
+
